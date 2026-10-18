@@ -1,0 +1,33 @@
+
+{
+  "name": "aegis-qa",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI-ready Playwright and TypeScript quality engineering framework",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test tests/ui",
+    "test:api": "playwright test tests/api",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^22.0.0",
+    "dotenv": "^16.4.7",
+    "eslint": "^9.0.0",
+    "eslint-plugin-playwright": "^2.2.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.4.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}

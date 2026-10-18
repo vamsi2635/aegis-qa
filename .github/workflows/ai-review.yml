@@ -1,0 +1,31 @@
+name: AI Test Proposal (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      purpose:
+        description: 'Test flow to propose or review'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate repository before AI work
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Print requested scope
+        env:
+          TEST_PURPOSE: ${{ inputs.purpose }}
+        run: echo "AI test proposal requested. Run AI authoring locally in Copilot; review all changes before merging."
