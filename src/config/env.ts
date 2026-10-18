@@ -14,5 +14,7 @@ function readUrl(name: string, fallback: string): URL {
 
 export const env = {
   baseURL: readUrl('BASE_URL', 'https://playwright.dev').toString().replace(/\/$/, ''),
-  apiBaseURL: readUrl('API_BASE_URL', 'https://jsonplaceholder.typicode.com').toString().replace(/\/$/, ''),
+  apiBaseURL: readUrl('API_BASE_URL', 'https://jsonplaceholder.typicode.com')
+    .toString()
+    .replace(/\/$/, ''),
 };

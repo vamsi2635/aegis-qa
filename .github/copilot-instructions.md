@@ -3,6 +3,7 @@
 You are assisting with a production-oriented Playwright + TypeScript test framework. Preserve its architecture.
 
 ## Non-negotiable rules
+
 - Inspect relevant existing files before editing. Do not rebuild the framework or add a competing test stack.
 - Use TypeScript strict mode and `@playwright/test`.
 - Prefer user-visible locators (`getByRole`, `getByLabel`, `getByPlaceholder`, and `getByTestId` when it is an explicit app contract). Avoid brittle CSS/XPath selectors.
@@ -18,4 +19,5 @@ You are assisting with a production-oriented Playwright + TypeScript test framew
 - Do not claim tests pass unless you ran them and inspected the result.
 
 ## Validation before handoff
+
 Run `npm run typecheck`, `npm run lint`, and the relevant Playwright test command. Report commands run, actual outcomes, risks, and files changed.
