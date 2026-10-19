@@ -122,11 +122,11 @@ lines.push(
 );
 if (warnings.length) lines.push("## Scan warnings", "", ...warnings.map((item) => "- " + item), "");
 if (!isInsideRoot(output)) { console.error("Output path must remain inside the project root."); process.exit(2); }
-const jsonOutput = output.replace(/\\.md$/i, ".json");
+const jsonOutput = output.replace(/\.md$/i, ".json");
 if (!isInsideRoot(jsonOutput)) { console.error("JSON output path must remain inside the project root."); process.exit(2); }
 await mkdir(path.dirname(output), { recursive: true });
-await writeFile(output, lines.join("\\n"), "utf8");
-await writeFile(jsonOutput, JSON.stringify(inventory, null, 2) + "\\n", "utf8");
+await writeFile(output, lines.join("\n"), "utf8");
+await writeFile(jsonOutput, JSON.stringify(inventory, null, 2) + "\n", "utf8");
 console.log("Aegis discovery complete: inspected " + files.length + " files.");
 console.log("Markdown inventory written to: " + relative(output));
 console.log("Machine-readable inventory written to: " + relative(jsonOutput));
