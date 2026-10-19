@@ -30,5 +30,9 @@ jobs:
         run: npx playwright install --with-deps
 
       # Customize this step as needed
-      - name: Build application
-        run: npx run build
+     - name: Validate framework
+        run: |
+          npm run lint
+          npm run typecheck
+          npm run format:check
+          npm test
