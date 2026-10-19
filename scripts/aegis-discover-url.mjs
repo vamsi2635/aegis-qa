@@ -3,9 +3,37 @@ import 'dotenv/config';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { chromium } from '@playwright/test';
-import { env } from '../src/config/env.ts';
 
-const target = new URL(env.uiBaseURL);
+const rawTarget = process.env.BASE_URL ?? 'https://playwright.dev';
+const allowedOrigins = new Set(
+  (process.env.ALLOWED_TARGET_ORIGINS ?? 'https://playwright.dev,https://jsonplaceholder.typicode.com')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+    .map((origin) => {
+      const parsed = new URL(origin);
+      if (!['http:', 'https:'].includes(parsed.protocol) || parsed.pathname !== '/' || parsed.search || parsed.hash || parsed.username || parsed.password) {
+        throw new Error('ALLOWED_TARGET_ORIGINS entries must be HTTP(S) origins without paths or credentials.');
+      }
+      return parsed.origin;
+    }),
+);
+let target;
+try {
+  target = new URL(rawTarget);
+} catch {
+  console.error('BASE_URL must be a valid absolute URL.');
+  process.exit(2);
+}
+if (!['http:', 'https:'].includes(target.protocol) || target.username || target.password || target.search || target.hash) {
+  console.error('BASE_URL must use HTTP(S) and must not contain credentials, a query string, or a fragment.');
+  process.exit(2);
+}
+if (!allowedOrigins.has(target.origin)) {
+  console.error('Target origin is not allowlisted. Add only an approved non-production origin to ALLOWED_TARGET_ORIGINS.');
+  process.exit(2);
+}
+
 const outputDir = path.resolve(process.argv[2] ?? 'artifacts/aegis');
 const timeoutMs = Number(process.env.AEGIS_DISCOVERY_TIMEOUT_MS ?? 20_000);
 
