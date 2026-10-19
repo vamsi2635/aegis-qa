@@ -179,3 +179,14 @@ Run generator regression tests with:
 ```powershell
 npx playwright test tests/aegis-planning.spec.ts
 ```
+
+
+## Generate a release-readiness evidence report
+
+After execution statuses and evidence references have been updated from real runs, create a deterministic catalog audit:
+
+```powershell
+npm run aegis:release-readiness
+```
+
+The report is written to `artifacts/aegis/release-readiness.md`. The audit blocks when requirements are unapproved or unlinked, scenarios have invalid/missing traceability, scenarios fail, or P0/P1 and critical/high-risk scenarios are not recorded as passed. It also flags missing evidence references for P0/P1 scenarios. A clean result means only that this catalog audit found no configured blockers; it does not verify the referenced runs, query CI, prove coverage, or authorize a release. A human release owner must verify evidence, review residual risks, and record the decision. Never set a scenario to passed without actual execution evidence.
