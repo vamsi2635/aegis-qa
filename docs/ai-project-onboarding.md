@@ -234,3 +234,16 @@ The command writes `url-discovery.md` and `url-discovery.json`. It inspects only
 Review the inventory with the product/QA owner. The next step is to identify approved test roles and critical user journeys, confirm expected business behavior, and obtain API documentation or repository access if deeper coverage is required. Do not infer business rules from page labels alone.
 
 URL inspection cannot reliably discover authenticated pages, JavaScript-only states, API contracts, server-side validation, authorization rules, data persistence, integrations, or negative-path expectations. If the page requires login or the app has multiple critical flows, request a dedicated test account and explicit test scope before extending discovery. Never use production systems or real customer data for write-capable testing.
+
+
+## Bounded multi-page passive exploration
+
+Aegis now includes a first bounded same-origin crawler for an owner-approved application manifest. It inventories multiple reachable pages without clicking buttons or submitting forms:
+
+```powershell
+node scripts/aegis-explore-app.mjs "docs/application-onboarding.example.json"
+```
+
+The example manifest intentionally uses an invalid placeholder host and an unknown environment, so replace it with a local, ignored manifest containing the approved test origin before running. Keep credentials out of the manifest. The crawler writes `artifacts/aegis/app-exploration/app-exploration.json` and `app-exploration.md`, with page inventory, headings, links, forms metadata, buttons, landmarks, status codes, and observed browser errors. It enforces the manifest's exact origin allowlist and page/time budgets. It never clicks controls, submits forms, or performs writes. If using a local Playwright storage-state file, set `authentication.strategy` to `storageState` and provide a path within the manifest directory; keep that file out of version control and do not share it.
+
+This crawler is only the passive-discovery stage. It does not yet provide automated login flows, full API contract execution, AI-backed business-rule inference, real test generation for every discovered control, or automatic bug confirmation. Use `docs/full-application-testing-blueprint.md` for the target architecture and required project inputs. Do not treat a crawl as functional test coverage.
