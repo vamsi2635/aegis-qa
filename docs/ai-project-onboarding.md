@@ -197,6 +197,7 @@ The report is written to `artifacts/aegis/release-readiness.md`. The audit block
 After implementing real tests and running them with Playwright's JSON reporter, import outcomes into the scenario catalog using test titles that include the matching scenario ID, for example `[TC-AUTH-001] valid user can sign in`.
 
 ```powershell
+New-Item -ItemType Directory -Force artifacts/aegis | Out-Null
 npx playwright test --reporter=json > artifacts/aegis/playwright-results.json
 npm run aegis:import-results
 npm run aegis:release-readiness
