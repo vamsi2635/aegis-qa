@@ -209,3 +209,29 @@ npm run aegis:release-readiness
 The importer matches `TC-...` IDs in Playwright suite/spec/test titles, updates only matched scenarios, and records the JSON report path as an evidence reference. Unmatched catalog scenarios retain their existing status. Unknown IDs cause the import to stop without writing the catalog. Failed tests remain failed; skipped tests become blocked; a test that passes only after a failed retry is inconclusive. Review the JSON report and imported catalog before release review.
 
 The importer does not prove that the report is current, that its source environment is approved, or that evidence files are trustworthy. Use a fresh report from the intended run and verify it manually. Do not use this importer to turn generated `test.fixme` scaffolds into passing results; those are intentionally disabled and are not functional product tests.
+
+
+## URL-only onboarding: safe first inspection
+
+When only a running application URL is available, Aegis can create a read-only first-page inventory. This is a reconnaissance artifact, not a full application discovery or functional test suite.
+
+1. Obtain an approved **non-production** application URL from the application owner.
+2. Set `BASE_URL` to the URL and add its exact origin (scheme, host, and optional port; no path) to `ALLOWED_TARGET_ORIGINS` in your local `.env`.
+3. Install dependencies and the Chromium browser if not already installed.
+4. Run:
+
+```powershell
+npm run aegis:discover-url
+```
+
+Optional: pass an output directory as the first argument:
+
+```powershell
+node scripts/aegis-discover-url.mjs "artifacts/aegis"
+```
+
+The command writes `url-discovery.md` and `url-discovery.json`. It inspects only the initial page, recording the title, description, headings, buttons, link destinations, and form-field metadata. It does **not** collect input values, submit forms, click buttons, follow links, attempt authentication, or modify application files. The target origin must be explicitly allowlisted. Redirects to another origin are not explored.
+
+Review the inventory with the product/QA owner. The next step is to identify approved test roles and critical user journeys, confirm expected business behavior, and obtain API documentation or repository access if deeper coverage is required. Do not infer business rules from page labels alone.
+
+URL inspection cannot reliably discover authenticated pages, JavaScript-only states, API contracts, server-side validation, authorization rules, data persistence, integrations, or negative-path expectations. If the page requires login or the app has multiple critical flows, request a dedicated test account and explicit test scope before extending discovery. Never use production systems or real customer data for write-capable testing.
