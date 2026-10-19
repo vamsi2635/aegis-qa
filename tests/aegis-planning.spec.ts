@@ -112,3 +112,41 @@ test("release readiness audit blocks failed high-risk scenarios and accepts a re
     await rm(root, { recursive: true, force: true });
   }
 });
+
+
+test("Playwright result importer updates only matched catalog scenarios with real report evidence", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "aegis-import-results-"));
+  try {
+    const dir = path.join(root, "artifacts", "aegis");
+    await mkdir(dir, { recursive: true });
+    const catalogPath = path.join(dir, "qa-scenarios.json");
+    await writeFile(catalogPath, JSON.stringify({
+      schemaVersion: "1.0.0",
+      requirements: [{ id: "REQ-CORE", title: "Core behavior", source: "requirements.md#core", status: "approved" }],
+      scenarios: [
+        { id: "TC-CORE", requirementIds: ["REQ-CORE"], title: "Core journey", role: "user", preconditions: [], testData: ["synthetic"], steps: ["Complete journey"], expectedResult: "Journey succeeds", priority: "P1", risk: "high", layer: "api", automationStatus: "automated", executionStatus: "not-run", evidence: [] },
+        { id: "TC-OTHER", requirementIds: ["REQ-CORE"], title: "Other journey", role: "user", preconditions: [], testData: ["synthetic"], steps: ["Other journey"], expectedResult: "Other succeeds", priority: "P2", risk: "medium", layer: "api", automationStatus: "candidate", executionStatus: "not-run", evidence: [] }
+      ]
+    }));
+    await writeFile(path.join(dir, "playwright-results.json"), JSON.stringify({
+      config: {},
+      suites: [{
+        title: "API",
+        specs: [{
+          title: "[TC-CORE] core API journey",
+          tests: [{ title: "returns expected result", results: [{ status: "passed", duration: 12 }] }]
+        }],
+        suites: []
+      }]
+    }));
+    const result = spawnSync(process.execPath, [path.resolve("scripts/aegis-import-playwright-results.mjs"), root], { encoding: "utf8" });
+    expect(result.status).toBe(0);
+    const updated = JSON.parse(await readFile(catalogPath, "utf8"));
+    expect(updated.scenarios[0].executionStatus).toBe("passed");
+    expect(updated.scenarios[0].evidence).toContain("artifacts/aegis/playwright-results.json");
+    expect(updated.scenarios[1].executionStatus).toBe("not-run");
+    expect(updated.scenarios[1].evidence).toEqual([]);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
