@@ -25,7 +25,7 @@ A clean, TypeScript-first test automation starter designed for maintainability, 
 ```powershell
 Copy-Item .env.example .env
 npm install
-# npm install creates package-lock.json; commit it before pushing to GitHub
+# The committed package-lock.json supports reproducible installs with npm ci
 npx playwright install chromium
 npm run typecheck
 npm run lint
@@ -33,7 +33,13 @@ npm test
 npm run report
 ```
 
-The default UI smoke test targets `https://playwright.dev` as a safe example. Set `BASE_URL` to your own test/staging app when ready. Never point write-capable tests at production without an explicit approved strategy.
+The default UI tests target `https://playwright.dev` and the API example targets `https://jsonplaceholder.typicode.com`. These are demo services, not application coverage or a release gate.
+
+Set `BASE_URL` for the UI and `API_BASE_URL` for the API in `.env` when connecting an application. Both must use `http` or `https`. `ALLOWED_TARGET_ORIGINS` is a comma-separated list of exact origins (scheme, host, and optional port) allowed for either target; paths are allowed in the target URLs but not in this list. The defaults allow only the two demo origins. When using a real application, replace the allowlist with the explicitly approved non-production UI and API origins. Configuration fails at startup if a target origin is not allowlisted or if a URL is invalid or uses another protocol.
+
+UI paths passed to `homePage.open()` are resolved relative to `BASE_URL`, including slash-prefixed routes, so a base path such as `/qa-app/` is preserved.
+
+This allowlist is the production-target safety guard; the framework does not guess or hardcode your production domain. Keep production origins out of `ALLOWED_TARGET_ORIGINS`, and configure only dedicated development, test, or staging systems. Never point write-capable tests at production.
 
 ## Commands
 
@@ -52,13 +58,14 @@ The default UI smoke test targets `https://playwright.dev` as a safe example. Se
 
 ## First run against your app
 
-Before the first push, run `npm install`, review the generated `package-lock.json`, and commit it. CI uses `npm ci`, which intentionally requires a committed lockfile for repeatable dependency resolution.
+The committed `package-lock.json` supports reproducible dependency installation through `npm ci`. When dependencies change, review and commit the corresponding lockfile update.
 
-1. Set `BASE_URL` in `.env` to a test/staging URL.
-2. Agree on a small, stable smoke-test scope.
-3. Add page objects and tests only for observed, user-visible behavior.
-4. Run locally, inspect report and trace, then open a PR.
-5. Add CI secrets only after confirming the workflow requires them.
+1. Set `BASE_URL` and `API_BASE_URL` in `.env` to the approved non-production UI and API targets.
+2. Set `ALLOWED_TARGET_ORIGINS` to the exact origins for those targets; do not include production origins.
+3. Agree on a small, stable smoke-test scope.
+4. Add page objects and tests only for observed, user-visible behavior.
+5. Run locally, inspect report and trace, then open a PR.
+6. Add CI secrets only after confirming the workflow requires them.
 
 ## AI workflow
 

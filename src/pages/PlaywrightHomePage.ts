@@ -17,8 +17,9 @@ export class PlaywrightHomePage {
     });
   }
 
-  async open(): Promise<void> {
-    await this.page.goto('/');
+  async open(path = '/'): Promise<void> {
+    const relativePath = path.replace(/^\/+/, '') || './';
+    await this.page.goto(relativePath);
   }
 
   async openGettingStarted(): Promise<void> {

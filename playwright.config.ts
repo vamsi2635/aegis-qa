@@ -20,7 +20,7 @@ export default defineConfig({
   ],
   outputDir: 'test-results',
   use: {
-    baseURL: env.baseURL,
+    baseURL: `${env.uiBaseURL.replace(/\/+$/, '')}/`,
     actionTimeout: 10_000,
     navigationTimeout: 20_000,
     trace: isCI ? 'on-first-retry' : 'retain-on-failure',
