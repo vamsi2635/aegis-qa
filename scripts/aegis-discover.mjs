@@ -50,10 +50,43 @@ for (const file of files) {
 }
 let pkg = null;
 try { pkg = JSON.parse(await readFile(path.join(root, "package.json"), "utf8")); } catch {}
+const generatedAt = new Date().toISOString();
+const categoryEntries = [...groups.entries()].map(([name, paths]) => ({
+  name,
+  files: paths
+}));
+const questions = [
+  "Where are the authoritative business requirements and acceptance criteria?",
+  "Which user roles, critical journeys, and state transitions are in scope?",
+  "Which UI/API origins and test accounts are approved for non-production testing?",
+  "What test-data isolation and cleanup rules apply?",
+  "Which external integrations and failure modes are business-critical?",
+  "Which quality checks and approvals are required before release?"
+];
+const inventory = {
+  schemaVersion: "1.0.0",
+  generatedAt,
+  projectRoot: root,
+  scanMode: "read-only",
+  filesInspected: files.length,
+  project: {
+    name: pkg?.name ?? null,
+    packageManager: pkg?.packageManager ?? null,
+    scripts: pkg?.scripts ?? {}
+  },
+  categories: categoryEntries,
+  openQuestions: questions,
+  warnings,
+  limitations: [
+    "Filename heuristics are discovery signals, not proof of runtime behavior.",
+    "The scanner does not execute the application or prove route/API coverage.",
+    "Dependency, build, report, artifact folders, common secret files, and most hidden directories are excluded."
+  ]
+};
 const lines = [
   "# Aegis QA — Project Discovery Inventory", "",
   "- **Root:** " + root,
-  "- **Generated:** " + new Date().toISOString(),
+  "- **Generated:** " + generatedAt,
   "- **Files inspected:** " + files.length,
   "- **Mode:** read-only inventory; application files are not modified.",
   "- **Evidence:** file paths and declared scripts are discovery signals, not proof of runtime behavior.", "",
@@ -89,8 +122,12 @@ lines.push(
 );
 if (warnings.length) lines.push("## Scan warnings", "", ...warnings.map((item) => "- " + item), "");
 if (!isInsideRoot(output)) { console.error("Output path must remain inside the project root."); process.exit(2); }
+const jsonOutput = output.replace(/\\.md$/i, ".json");
+if (!isInsideRoot(jsonOutput)) { console.error("JSON output path must remain inside the project root."); process.exit(2); }
 await mkdir(path.dirname(output), { recursive: true });
-await writeFile(output, lines.join("\n"), "utf8");
+await writeFile(output, lines.join("\\n"), "utf8");
+await writeFile(jsonOutput, JSON.stringify(inventory, null, 2) + "\\n", "utf8");
 console.log("Aegis discovery complete: inspected " + files.length + " files.");
-console.log("Inventory written to: " + relative(output));
-console.log("Review the inventory before planning or generating tests.");
+console.log("Markdown inventory written to: " + relative(output));
+console.log("Machine-readable inventory written to: " + relative(jsonOutput));
+console.log("Review both inventories before planning or generating tests.");
