@@ -42,6 +42,7 @@ test.describe('Demo API contract', () => {
     expect(posts).not.toHaveLength(0);
 
     const firstPost = (posts as PostResponse[])[0];
+    if (!firstPost) throw new Error('Expected the posts API to return at least one post.');
 
     expect(firstPost).toMatchObject({
       userId: expect.any(Number),

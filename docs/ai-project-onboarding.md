@@ -1,0 +1,236 @@
+# Aegis QA: Project Onboarding Workflow
+
+This document defines how to apply Aegis QA to a new software project while minimizing changes to the application.
+
+## Inputs
+
+Before onboarding, identify what is available:
+
+- Application repository and default branch.
+- Business requirements, user stories, acceptance criteria, diagrams, and known defects.
+- Approved non-production UI/API URLs and permitted test accounts.
+- API specifications and integration documentation, if available.
+- Test data constraints, data reset/cleanup strategy, and role/permission matrix.
+- CI provider, deployment stages, and release approval policy.
+
+Do not put credentials, access tokens, cookies, customer records, or production data in the repository or AI prompts.
+
+## Phase 1 — Read-only discovery
+
+Use the aegis-project-analyst agent first.
+
+Inspect repository instructions, manifests, source structure, route definitions, domain/API contracts, existing tests, fixtures, CI workflows, and deployment configuration. Use approved browser exploration only against a non-production target.
+
+Deliverable: docs/project-discovery.md in the target project or a reviewable onboarding artifact. Every important finding must cite its evidence path and be marked confirmed, inferred, assumed, or unknown.
+
+No application files are changed in this phase.
+
+## Phase 2 — Requirements and test planning
+
+Create:
+
+- docs/qa/test-strategy.md
+- docs/qa/requirements-traceability.md
+- docs/qa/test-scenarios.md
+- docs/qa/open-questions.md when requirements are ambiguous
+
+Give each requirement and scenario a stable ID. Include role, preconditions, test data, steps, expected result, priority/risk, proposed test layer, automation status, and execution result.
+
+Cover applicable happy paths, negative paths, boundaries, authorization, state transitions, integration failures, and non-functional checks. Scope security, accessibility, performance, and compatibility tests explicitly; do not imply they are covered if they are not.
+
+Do not invent expected business behavior. Ask for decisions when an unknown materially changes expected results or risk.
+
+## Phase 3 — Minimal test-infrastructure adaptation
+
+Before adding infrastructure, compare the target project's current setup with the proposed approach.
+
+1. Reuse existing test tooling when it is suitable.
+2. If no suitable browser/API automation exists, propose the smallest compatible setup.
+3. Keep test code separate from application code wherever possible.
+4. Reuse existing fixtures, factories, API clients, page objects, and test-data mechanisms.
+5. Use synthetic data and isolated test accounts.
+6. Do not change business logic, database schema, auth behavior, or application architecture just to make tests easier without explicit approval.
+
+List proposed file changes and the reason for each before broad changes.
+
+## Phase 4 — Incremental test generation
+
+Generate tests by risk-ranked feature slices, not by creating hundreds of unreviewed tests at once.
+
+For each batch:
+
+1. Link tests to scenario IDs.
+2. Use stable, user-observable assertions and the project's established conventions.
+3. Keep tests isolated and deterministic.
+4. Run the focused tests.
+5. Run typecheck, lint, formatting, and relevant regression checks when supported.
+6. Preserve reports, traces, screenshots, and logs for failures.
+7. Update traceability with actual outcomes, not expected outcomes.
+
+## Phase 5 — Failure diagnosis and healing
+
+Classify each failure as:
+
+- Product defect
+- Test defect
+- Environment or test-data issue
+- Inconclusive
+
+Use evidence before changing code. Prefer the smallest safe patch. Never delete or skip a failing test, weaken assertions, alter expected business behavior just to pass, or mark a failure fixed without rerunning the relevant checks.
+
+Application-code fixes require explicit authorization. Keep the original failure and before/after results available.
+
+## Phase 6 — CI/CD integration
+
+Inspect the existing CI/CD provider and workflows before changing them.
+
+Propose a staged pipeline appropriate to the project, such as:
+
+- Install with the lockfile and static checks.
+- Unit/integration tests already present in the project.
+- API and UI smoke tests against approved non-production environments.
+- Broader regression and relevant quality/security checks.
+- Artifact publication: test report, traces, screenshots, and machine-readable results.
+- Deployment to a staging/release candidate environment.
+- Explicit approval gates before production deployment.
+
+Use least-privilege permissions, protected secrets, pinned actions where required by repository policy, timeouts, and artifact retention. Never add real secrets to source control. Do not deploy, merge, or approve a release autonomously.
+
+## Phase 7 — Readiness report
+
+The final report must include:
+
+- Scope and requirements understood.
+- Scenario counts by priority and layer.
+- Requirement-to-test traceability and known gaps.
+- Actual test results and exact commands/run links.
+- Failures, root-cause classification, and unresolved defects.
+- Files changed and why each change was necessary.
+- CI/CD status and release blockers.
+- Residual risks and a recommendation: ready for human release review, not ready, or inconclusive.
+
+Passing tests are evidence, not proof that the system is bug-free. Never claim complete coverage unless the scope and evidence support that claim.
+
+## First executable step: generate a discovery inventory
+
+The repository includes a read-only Node.js CLI to create a first-pass inventory before the analyst agent performs deeper source and requirements review.
+
+From the target project root, run:
+
+```powershell
+npm run aegis:discover
+```
+
+The default outputs are `artifacts/aegis/project-discovery.md` for human review and `artifacts/aegis/project-discovery.json` for downstream agent handoffs. The JSON follows `schemas/project-discovery.schema.json`. When you supply a custom Markdown output path, the CLI writes a sibling JSON file with the same base name. You can supply a different project root and output path:
+
+```powershell
+node scripts/aegis-discover.mjs "C:\\path\\to\\target-project" "artifacts/aegis/project-discovery.md"
+```
+
+The scanner inventories recognized manifests, test files, likely route/application entry points, API contracts, documentation, and CI/CD configuration. It records package scripts and prompts the analyst to resolve missing business context. It does not install packages, execute application code, inspect file contents beyond the root package manifest, call external services, or modify application source. Common secret files and generated/dependency folders are excluded. Review the report before using it for planning; filename heuristics can miss routes and misclassify files.
+
+## Next executable step: requirements-to-scenario traceability
+
+After discovery and product-owner review, create a working catalog at `artifacts/aegis/qa-scenarios.json`. Start from `docs/qa-scenarios.example.json`, but replace all placeholders with evidence from the target project's approved requirements.
+
+Each requirement needs a stable `REQ-...` ID, source reference, and status (`approved`, `needs-clarification`, or `assumption`). Each scenario needs a stable `TC-...` ID, one or more valid requirement links, role, preconditions, secret-free test-data references, actionable steps, expected result, priority, risk, test layer, and automation status. Do not automate an assumed expected result as if it were approved behavior.
+
+Run the structural and traceability checks:
+
+```powershell
+npm run aegis:validate-scenarios
+```
+
+The command reads `artifacts/aegis/qa-scenarios.json` and writes `artifacts/aegis/qa-scenario-validation.md`. You can provide a different project root, input JSON path, and report path:
+
+```powershell
+node scripts/aegis-validate-scenarios.mjs "." "artifacts/aegis/qa-scenarios.json" "artifacts/aegis/qa-scenario-validation.md"
+```
+
+The validator checks required fields, stable ID formats, duplicate IDs, unknown requirement links, allowed enum values, and requirements without scenarios. Unlinked or unapproved requirements are warnings; malformed catalogs fail with a non-zero exit code. The companion schema is `schemas/qa-scenario-catalog.schema.json`. The CLI uses Node.js built-ins and does not install dependencies, execute application code, or modify application source. These checks do not replace full JSON Schema validation or human review.
+
+## Generate a transparent risk-ranked plan
+
+After the catalog passes structural validation, generate a planning report:
+
+```powershell
+npm run aegis:plan-scenarios
+```
+
+The command reads `artifacts/aegis/qa-scenarios.json` and writes `artifacts/aegis/risk-ranked-test-plan.md`. It ranks catalog entries using a visible heuristic based on declared risk, priority, and test layer; it also reports unlinked requirements and scenarios with missing/unknown links or expected results. The score is a sorting aid, not a probability estimate. Review and adjust priorities with product and QA owners; the tool does not infer business requirements or generate executable product tests.
+
+To run focused regression tests for the catalog validator and planner:
+
+```powershell
+npx playwright test tests/aegis-planning.spec.ts
+```
+
+These tests exercise the CLIs using temporary synthetic catalogs. Run the project's typecheck and lint as well, and inspect any findings before considering the change ready.
+
+## Generate review-required Playwright scaffolds
+
+Once requirement statuses and scenario links are reviewed, generate starter test files:
+
+```powershell
+npm run aegis:generate-tests
+```
+
+The generator reads `artifacts/aegis/qa-scenarios.json` and writes `artifacts/aegis/generated-tests/`, including a generation manifest and README. It only includes scenarios whose linked requirements all exist and are approved, whose IDs/steps/expected result are usable, and whose layer is `api`, `ui`, or `e2e` with automation status `candidate` or `automated`.
+
+Generated files are deliberately disabled with Playwright `test.fixme` and contain explicit TODOs plus a deliberately failing placeholder assertion. They are scaffolds, not functioning tests; implement real setup, selectors/API calls, synthetic data, cleanup, and assertions before enabling them. Scenarios with unapproved requirements or incomplete traceability are listed as excluded. Generated files are placed under `artifacts/` so they remain local by default; review them before moving any into the tracked test suite.
+
+Run generator regression tests with:
+
+```powershell
+npx playwright test tests/aegis-planning.spec.ts
+```
+
+## Generate a release-readiness evidence report
+
+After execution statuses and evidence references have been updated from real runs, create a deterministic catalog audit:
+
+```powershell
+npm run aegis:release-readiness
+```
+
+The report is written to `artifacts/aegis/release-readiness.md`. The audit blocks when requirements are unapproved or unlinked, scenarios have invalid/missing traceability, scenarios fail, or P0/P1 and critical/high-risk scenarios are not recorded as passed. It also flags missing evidence references for P0/P1 scenarios. A clean result means only that this catalog audit found no configured blockers; it does not verify the referenced runs, query CI, prove coverage, or authorize a release. A human release owner must verify evidence, review residual risks, and record the decision. Never set a scenario to passed without actual execution evidence.
+
+## Import actual Playwright execution results
+
+After implementing real tests and running them with Playwright's JSON reporter, import outcomes into the scenario catalog using test titles that include the matching scenario ID, for example `[TC-AUTH-001] valid user can sign in`.
+
+```powershell
+New-Item -ItemType Directory -Force artifacts/aegis | Out-Null
+npx playwright test --reporter=json > artifacts/aegis/playwright-results.json
+npm run aegis:import-results
+npm run aegis:release-readiness
+```
+
+The importer matches `TC-...` IDs in Playwright suite/spec/test titles, updates only matched scenarios, and records the JSON report path as an evidence reference. Unmatched catalog scenarios retain their existing status. Unknown IDs cause the import to stop without writing the catalog. Failed tests remain failed; skipped tests become blocked; a test that passes only after a failed retry is inconclusive. Review the JSON report and imported catalog before release review.
+
+The importer does not prove that the report is current, that its source environment is approved, or that evidence files are trustworthy. Use a fresh report from the intended run and verify it manually. Do not use this importer to turn generated `test.fixme` scaffolds into passing results; those are intentionally disabled and are not functional product tests.
+
+## URL-only onboarding: safe first inspection
+
+When only a running application URL is available, Aegis can create a read-only first-page inventory. This is a reconnaissance artifact, not a full application discovery or functional test suite.
+
+1. Obtain an approved **non-production** application URL from the application owner.
+2. Set `BASE_URL` to the URL and add its exact origin (scheme, host, and optional port; no path) to `ALLOWED_TARGET_ORIGINS` in your local `.env`.
+3. Install dependencies and the Chromium browser if not already installed.
+4. Run:
+
+```powershell
+npm run aegis:discover-url
+```
+
+Optional: pass an output directory as the first argument:
+
+```powershell
+node scripts/aegis-discover-url.mjs "artifacts/aegis"
+```
+
+The command writes `url-discovery.md` and `url-discovery.json`. It inspects only the initial page, recording the title, description, headings, buttons, link destinations, and form-field metadata. It does **not** collect input values, submit forms, click buttons, follow links, attempt authentication, or modify application files. The target origin must be explicitly allowlisted. Redirects to another origin are not explored.
+
+Review the inventory with the product/QA owner. The next step is to identify approved test roles and critical user journeys, confirm expected business behavior, and obtain API documentation or repository access if deeper coverage is required. Do not infer business rules from page labels alone.
+
+URL inspection cannot reliably discover authenticated pages, JavaScript-only states, API contracts, server-side validation, authorization rules, data persistence, integrations, or negative-path expectations. If the page requires login or the app has multiple critical flows, request a dedicated test account and explicit test scope before extending discovery. Never use production systems or real customer data for write-capable testing.

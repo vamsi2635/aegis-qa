@@ -1,18 +1,19 @@
 # Aegis QA — AI-Ready Playwright Automation Framework
 
-A clean, TypeScript-first test automation starter designed for maintainability, traceable failures, and controlled AI-assisted test authoring.
+A TypeScript-first QA automation foundation evolving toward a project-aware AI QA engineering workflow: understand a project, map requirements and user flows, plan and generate tests, execute and diagnose failures, and prepare reviewed CI/CD quality gates with minimal application changes.
 
-> **Status:** production-oriented starter scaffold, not a certified production system. Validate it against your application, security requirements, CI environment, and test data before adopting it as a release gate.
+> **Status:** evolving starter and agent workflow, not an autonomous production release system. Validate it against each application, its security requirements, CI environment, and test data before adopting it as a release gate.
 
 ## Architecture
 
 - UI automation: Playwright Test + TypeScript + Page Object Model
-- API automation: Playwright `APIRequestContext`
+- API automation: Playwright APIRequestContext
 - Quality controls: TypeScript strict mode, ESLint, Prettier, isolated tests
 - Evidence: HTML report, trace on first retry in CI, screenshots on failure
-- AI workflow: Copilot instructions + Planner / Generator / Healer operating contract
+- AI agents: Project Analyst, QA Planner, Test Generator, Test Healer, and Orchestrator profiles under .github/agents
+- Onboarding process: docs/ai-project-onboarding.md
 - CI: GitHub Actions on pull requests, pushes, scheduled runs, and manual dispatch
-- Secrets: `.env` is ignored; CI secrets are injected through GitHub Actions
+- Secrets: .env is ignored; CI secrets are injected through GitHub Actions
 
 ## Prerequisites
 
@@ -33,46 +34,62 @@ npm test
 npm run report
 ```
 
-The default UI tests target `https://playwright.dev` and the API example targets `https://jsonplaceholder.typicode.com`. These are demo services, not application coverage or a release gate.
+The default UI tests target https://playwright.dev and the API example targets https://jsonplaceholder.typicode.com. These are demo services, not application coverage or a release gate.
 
-Set `BASE_URL` for the UI and `API_BASE_URL` for the API in `.env` when connecting an application. Both must use `http` or `https`. `ALLOWED_TARGET_ORIGINS` is a comma-separated list of exact origins (scheme, host, and optional port) allowed for either target; paths are allowed in the target URLs but not in this list. The defaults allow only the two demo origins. When using a real application, replace the allowlist with the explicitly approved non-production UI and API origins. Configuration fails at startup if a target origin is not allowlisted or if a URL is invalid or uses another protocol.
+Set BASE_URL for the UI and API_BASE_URL for the API in .env when connecting an application. Both must use http or https. ALLOWED_TARGET_ORIGINS is a comma-separated list of exact origins (scheme, host, and optional port) allowed for either target; paths are allowed in target URLs but not in this list. The defaults allow only the two demo origins. When using a real application, replace the allowlist with explicitly approved non-production UI and API origins. Configuration fails at startup if a target origin is not allowlisted or if a URL is invalid or uses another protocol.
 
-UI paths passed to `homePage.open()` are resolved relative to `BASE_URL`, including slash-prefixed routes, so a base path such as `/qa-app/` is preserved.
+UI paths passed to homePage.open() are resolved relative to BASE_URL, including slash-prefixed routes, so a base path such as /qa-app/ is preserved.
 
-This allowlist is the production-target safety guard; the framework does not guess or hardcode your production domain. Keep production origins out of `ALLOWED_TARGET_ORIGINS`, and configure only dedicated development, test, or staging systems. Never point write-capable tests at production.
+This allowlist is a safety guard, not an environment classifier. Keep production origins out of ALLOWED_TARGET_ORIGINS and configure only dedicated development, test, or staging systems. Never point write-capable tests at production.
+
+### URL-only application discovery
+
+If you have a running **approved non-production** application URL but not its repository, Aegis can inventory the initial page without submitting forms or following links.
+
+1. In your local `.env`, set `BASE_URL` to the application URL.
+2. Add its exact origin to `ALLOWED_TARGET_ORIGINS` (for example, `https://qa.example.test`; do not include a path).
+3. Run `npm run aegis:discover-url`.
+
+This creates `artifacts/aegis/url-discovery.md` and `artifacts/aegis/url-discovery.json`. It records page headings, button labels, link destinations, and form metadata only; it does not collect input values, click controls, follow links, or authenticate. The allowlist is a safety guard, not proof that an environment is non-production. See [the onboarding guide](docs/ai-project-onboarding.md#url-only-onboarding-safe-first-inspection) for limits and next steps.
 
 ## Commands
 
-| Command                | Purpose                        |
-| ---------------------- | ------------------------------ |
-| `npm test`             | Run all Playwright tests       |
-| `npm run test:ui`      | Run UI tests                   |
-| `npm run test:api`     | Run API tests                  |
-| `npm run test:smoke`   | Run smoke-tagged tests         |
-| `npm run test:headed`  | Run with visible browser       |
-| `npm run test:debug`   | Open Playwright debugging mode |
-| `npm run report`       | Open latest HTML report        |
-| `npm run typecheck`    | TypeScript static checks       |
-| `npm run lint`         | ESLint                         |
-| `npm run format:check` | Check formatting               |
+| Command              | Purpose                        |
+| -------------------- | ------------------------------ |
+| npm test             | Run all Playwright tests       |
+| npm run test:ui      | Run UI tests                   |
+| npm run test:api     | Run API tests                  |
+| npm run test:smoke   | Run smoke-tagged tests         |
+| npm run test:headed  | Run with visible browser       |
+| npm run test:debug   | Open Playwright debugging mode |
+| npm run report       | Open latest HTML report        |
+| npm run typecheck    | TypeScript static checks       |
+| npm run lint         | ESLint                         |
+| npm run format:check | Check formatting               |
 
-## First run against your app
+## Onboard a new project
 
-The committed `package-lock.json` supports reproducible dependency installation through `npm ci`. When dependencies change, review and commit the corresponding lockfile update.
+Start with the read-only discovery agent, then review the discovery report before planning or modifying anything.
 
-1. Set `BASE_URL` and `API_BASE_URL` in `.env` to the approved non-production UI and API targets.
-2. Set `ALLOWED_TARGET_ORIGINS` to the exact origins for those targets; do not include production origins.
-3. Agree on a small, stable smoke-test scope.
-4. Add page objects and tests only for observed, user-visible behavior.
-5. Run locally, inspect report and trace, then open a PR.
-6. Add CI secrets only after confirming the workflow requires them.
+1. Open the target project in VS Code and confirm its repository instructions and approved non-production environment.
+2. Invoke the **Aegis Project Analyst** agent to inventory architecture, requirements evidence, user roles, flows, test infrastructure, and CI/CD.
+3. Review the findings and resolve important unknown business rules with the product owner.
+4. Use the **Aegis Orchestrator** agent to create a risk-ranked test strategy and requirement-to-test traceability.
+5. Generate tests incrementally using the existing project conventions and the smallest necessary infrastructure changes.
+6. Run targeted tests, typecheck, lint, and relevant regression checks. Preserve failure evidence and update traceability with actual outcomes.
+7. Propose CI/CD changes on a feature branch. Require human review for application changes, merges, deployments, and release decisions.
 
-## AI workflow
+See docs/ai-project-onboarding.md for the full process and required deliverables.
 
-See `docs/ai-agent-operating-model.md`. AI may explore and propose tests, but generated code must pass typecheck, lint, and test validation. The Healer must not change expected business behavior, weaken assertions, skip tests, or silently convert a product defect into a passing test.
+## AI workflow and safety
+
+The agent profiles are reusable instructions for specialized work; they do not by themselves prove that the entire workflow is automatically orchestrated end-to-end. Validate each agent with a representative task and inspect its edits and actual tool results.
+
+AI may explore and propose tests, but generated code must pass appropriate checks. The Healer must not change expected business behavior, weaken assertions, skip tests, or silently convert a product defect into a passing test. Do not give agents production secrets or unfiltered customer data. Use synthetic data and approved non-production targets.
 
 ## Important limitations
 
-- This scaffold does not include an application-under-test, production credentials, deployment pipeline for your product, or verified coverage for your app.
+- This scaffold does not include an application-under-test, production credentials, a deployment pipeline for your product, or verified coverage for your app.
 - The API test uses a public demo endpoint. Replace it with your approved test API before using the suite as a release gate.
-- Before production adoption, pin GitHub Actions to verified full commit SHAs, configure branch protection and required checks, define data cleanup, and review threat model and retention policies.
+- A passing suite is not proof of zero defects or complete coverage.
+- Before production adoption, verify action pinning, branch protection and required checks, data cleanup, threat model, artifact retention, and human release approvals.

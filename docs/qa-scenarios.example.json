@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0.0",
+  "requirements": [
+    {
+      "id": "REQ-EXAMPLE-001",
+      "title": "Replace with an approved business requirement",
+      "source": "docs/requirements.md#section",
+      "status": "needs-clarification",
+      "notes": "Example only. Do not treat this as confirmed product behavior."
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "TC-EXAMPLE-001",
+      "requirementIds": ["REQ-EXAMPLE-001"],
+      "title": "Replace with a testable scenario title",
+      "role": "Replace with an applicable user role",
+      "preconditions": ["Replace with a verified precondition"],
+      "testData": [
+        "Use synthetic data or a reference to approved test data; never include credentials"
+      ],
+      "steps": ["Replace with a concrete action", "Replace with the next action"],
+      "expectedResult": "Copy or faithfully derive from approved acceptance criteria; resolve ambiguity before automation.",
+      "priority": "P1",
+      "risk": "high",
+      "layer": "api",
+      "automationStatus": "candidate",
+      "executionStatus": "not-run",
+      "evidence": [],
+      "notes": "Template placeholder; replace before use."
+    }
+  ]
+}

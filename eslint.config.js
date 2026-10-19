@@ -11,6 +11,15 @@ export default tseslint.config(
     ignores: ['node_modules/**', 'playwright-report/**', 'test-results/**'],
   },
   js.configs.recommended,
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: globals.node },
+    rules: { 'no-empty': ['error', { allowEmptyCatch: true }] },
+  },
+  {
+    files: ['scripts/aegis-discover-url.mjs'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
   ...tseslint.configs.recommended,
   {
     files: ['**/*.ts'],
