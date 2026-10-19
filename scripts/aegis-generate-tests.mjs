@@ -41,7 +41,7 @@ const safeName = (value) =>
 const quote = (value) => JSON.stringify(String(value ?? ''));
 const commentText = (value) =>
   String(value ?? '')
-    .replace(/\\*\\/ / g, '* /')
+    .replace(/\*\//g, '* /')
     .replace(/[\\r\\n]+/g, ' ');
 for (const [index, scenario] of catalog.scenarios.entries()) {
   const id = scenario && typeof scenario.id === 'string' ? scenario.id : '';
