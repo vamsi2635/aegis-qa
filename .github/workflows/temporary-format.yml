@@ -1,0 +1,39 @@
+name: Temporary feature-branch formatting
+
+on:
+  push:
+    branches:
+      - feat/ai-qa-orchestration-foundation
+
+permissions:
+  contents: write
+
+concurrency:
+  group: temporary-format-{{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${'{'}{ github.ref_name }}
+          token: ${'{'}{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write .
+      - name: Commit formatting changes
+        run: |
+          if git diff --quiet; then
+            echo "All files already formatted."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u
+          git commit -m "style: apply Prettier formatting"
+          git push
