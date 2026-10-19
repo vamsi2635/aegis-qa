@@ -51,7 +51,7 @@ test("generator creates only approved, linked scaffolds and excludes unapproved 
     await writeFile(path.join(root, "artifacts", "aegis", "qa-scenarios.json"), JSON.stringify({
       schemaVersion: "1.0.0",
       requirements: [
-        { id: "REQ-OK", title: "Approved requirement", source: "requirements.md#approved", status: "approved" },
+        { id: "REQ-OK", title: "Approved requirement", source: "requirements.md */ injected", status: "approved" },
         { id: "REQ-PENDING", title: "Pending requirement", source: "requirements.md#pending", status: "needs-clarification" }
       ],
       scenarios: [
@@ -70,6 +70,8 @@ test("generator creates only approved, linked scaffolds and excludes unapproved 
     if (!scaffoldName) throw new Error("Expected approved scenario scaffold was not generated.");
     const scaffold = await readFile(path.join(out, scaffoldName), "utf8");
     expect(scaffold).toContain("test.fixme");
+    expect(scaffold).toContain("requirements.md * / injected");
+    expect(scaffold).not.toContain("requirements.md */ injected");
     expect(scaffold).toContain("expect(true).toBe(false)");
     const manifest = JSON.parse(await readFile(path.join(out, "generation-manifest.json"), "utf8"));
     expect(manifest.generatedCount).toBe(1);
