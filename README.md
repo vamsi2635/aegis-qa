@@ -42,6 +42,16 @@ UI paths passed to homePage.open() are resolved relative to BASE_URL, including 
 
 This allowlist is a safety guard, not an environment classifier. Keep production origins out of ALLOWED_TARGET_ORIGINS and configure only dedicated development, test, or staging systems. Never point write-capable tests at production.
 
+### URL-only application discovery
+
+If you have a running **approved non-production** application URL but not its repository, Aegis can inventory the initial page without submitting forms or following links.
+
+1. In your local `.env`, set `BASE_URL` to the application URL.
+2. Add its exact origin to `ALLOWED_TARGET_ORIGINS` (for example, `https://qa.example.test`; do not include a path).
+3. Run `npm run aegis:discover-url`.
+
+This creates `artifacts/aegis/url-discovery.md` and `artifacts/aegis/url-discovery.json`. It records page headings, button labels, link destinations, and form metadata only; it does not collect input values, click controls, follow links, or authenticate. The allowlist is a safety guard, not proof that an environment is non-production. See [the onboarding guide](docs/ai-project-onboarding.md#url-only-onboarding-safe-first-inspection) for limits and next steps.
+
 ## Commands
 
 | Command              | Purpose                        |
