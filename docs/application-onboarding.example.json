@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0.0",
+  "application": {
+    "name": "Example Test Application",
+    "baseUrl": "https://test.example.invalid",
+    "repositoryPath": null,
+    "frontendTechnology": null,
+    "backendTechnology": null,
+    "apiBaseUrl": null,
+    "openApiSpec": null
+  },
+  "safety": {
+    "environmentType": "unknown",
+    "authorizedOrigins": ["https://test.example.invalid"],
+    "allowWriteActions": false,
+    "allowDestructiveActions": false,
+    "allowExternalLinks": false,
+    "maxPages": 50,
+    "maxDurationSeconds": 300,
+    "robotsOrRateLimitNotes": null
+  },
+  "environments": [
+    {
+      "name": "test",
+      "baseUrl": "https://test.example.invalid",
+      "kind": "unknown",
+      "apiBaseUrl": null
+    }
+  ],
+  "authentication": {
+    "strategy": "unknown",
+    "storageStatePath": null,
+    "usernameEnv": null,
+    "passwordEnv": null,
+    "loginPath": null,
+    "notes": "Replace with the approved authentication approach. Never place credentials in this file."
+  },
+  "roles": [
+    {
+      "id": "standard-user",
+      "description": "Example least-privilege test role",
+      "credentialRef": "AEGIS_TEST_USER_SECRET",
+      "permissions": [],
+      "expectedLandingPath": null
+    }
+  ],
+  "journeys": [
+    {
+      "id": "JNY-LOGIN-001",
+      "name": "Approved user sign-in",
+      "priority": "P1",
+      "roles": ["standard-user"],
+      "preconditions": ["Approved test account exists", "Expected behavior confirmed by application owner"],
+      "steps": ["Open sign-in page", "Sign in with approved test account"],
+      "expectedOutcomeStatus": "needs-clarification",
+      "testDataStrategy": "Synthetic data only",
+      "cleanupStrategy": "No write actions in discovery; define cleanup before mutation tests",
+      "destructive": false
+    }
+  ],
+  "coverage": {
+    "ui": true,
+    "api": true,
+    "authorization": true,
+    "accessibility": false,
+    "performance": false,
+    "security": false,
+    "browsers": ["chromium"]
+  },
+  "evidenceSources": []
+}
