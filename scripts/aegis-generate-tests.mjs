@@ -42,7 +42,7 @@ const quote = (value) => JSON.stringify(String(value ?? ''));
 const commentText = (value) =>
   String(value ?? '')
     .replace(/\*\//g, '* /')
-    .replace(/[\\r\\n]+/g, ' ');
+    .replace(/[\r\n]+/g, ' ');
 for (const [index, scenario] of catalog.scenarios.entries()) {
   const id = scenario && typeof scenario.id === 'string' ? scenario.id : '';
   const reason = [];
