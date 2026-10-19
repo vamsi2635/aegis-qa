@@ -1,0 +1,31 @@
+name: Temporary Aegis formatting pass
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/aegis-generate-api-tests.mjs'
+      - '.github/workflows/aegis-format-fix.yml'
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write scripts/aegis-generate-api-tests.mjs
+      - name: Commit formatted file
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add scripts/aegis-generate-api-tests.mjs
+            git commit -m "Format OpenAPI test generator"
+            git push origin main
+          fi
