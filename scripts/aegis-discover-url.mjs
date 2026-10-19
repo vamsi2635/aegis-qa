@@ -55,12 +55,12 @@ try {
   await page.locator('body').waitFor({ state: 'attached', timeout: timeoutMs });
 
   const snapshot = await page.evaluate(() => {
-    const cleanText = (value: string | null | undefined) =>
+    const cleanText = (value) =>
       (value ?? '').replace(/\\s+/g, ' ').trim().slice(0, 300);
 
     const links = Array.from(document.querySelectorAll('a[href]'))
       .map((anchor) => {
-        const element = anchor as HTMLAnchorElement;
+        const element = anchor;
         return {
           text: cleanText(element.innerText || element.getAttribute('aria-label')),
           href: element.href,
@@ -75,7 +75,7 @@ try {
       method: (form.getAttribute('method') ?? 'get').toLowerCase(),
       action: form.action || window.location.href,
       fields: Array.from(form.querySelectorAll('input, select, textarea, button')).map((field) => {
-        const element = field as HTMLInputElement;
+        const element = field;
         return {
           tag: element.tagName.toLowerCase(),
           type: cleanText(element.type || element.tagName.toLowerCase()),
@@ -103,7 +103,7 @@ try {
       links,
       forms,
       buttons: Array.from(document.querySelectorAll('button, input[type="button"], input[type="submit"]'))
-        .map((button) => cleanText((button as HTMLElement).innerText || (button as HTMLInputElement).value || button.getAttribute('aria-label')))
+        .map((button) => cleanText(button.innerText || button.value || button.getAttribute('aria-label')))
         .filter(Boolean)
         .slice(0, 100),
       imagesWithoutAlt: document.querySelectorAll('img:not([alt]), img[alt=""]').length,
