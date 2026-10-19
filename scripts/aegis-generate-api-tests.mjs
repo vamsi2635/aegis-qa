@@ -44,13 +44,15 @@ for (const [route, pathItem] of Object.entries(paths)) {
   const responses = operation.responses ?? {};
   const success = Object.keys(responses).filter((code) => /^2\d\d$/.test(code)).sort();
   if (!success.length) continue;
+  const parameters = [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])].map((p) => ({ name: p.name, in: p.in, required: Boolean(p.required) }));
+  if (parameters.some((p) => p.required)) continue;
   operations.push({
     id: String(operation.operationId ?? 'GET_' + route).replace(/[^a-zA-Z0-9_-]/g, '_'),
     route,
     summary: String(operation.summary ?? operation.operationId ?? route).replace(/\s+/g, ' ').slice(0, 180),
     success,
     security: operation.security ?? spec.security ?? [],
-    parameters: [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])].map((p) => ({ name: p.name, in: p.in, required: Boolean(p.required) })),
+    parameters,
   });
 }
 if (!operations.length) fail('No GET operations with documented 2xx responses found.');
@@ -69,7 +71,6 @@ const lines = [
   '  });',
   ...operations.flatMap((op) => [
     '  test(' + safe('[API-' + op.id + '] ' + op.summary) + ', async ({ request }) => {',
-    '    test.skip(' + safe('Operation has required parameters that need reviewed test values: ' + op.parameters.filter((p) => p.required).map((p) => p.in + ':' + p.name).join(', ')) + ', ' + safe(op.parameters.some((p) => p.required) ) + ');',
     '    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};',
     '    const response = await request.get(new URL(' + safe(op.route.replace(/\{([^}]+)\}/g, ':$1')) + '.replace(/:([a-zA-Z0-9_]+)/g, "undefined"), baseURL).toString(), { headers });',
     '    expect([' + op.success.map(Number).join(', ') + ']).toContain(response.status());',
@@ -92,7 +93,7 @@ await writeFile(inventoryPath, JSON.stringify({
   operations,
   limitations: [
     'Only GET operations with documented 2xx responses are generated.',
-    'Required path/query/header parameters need reviewed values before running.',
+    'Operations with required parameters are excluded until a reviewed parameter-value strategy is implemented.',
     'This first generator checks documented success status codes only; it does not yet validate response schemas or business expectations.',
     'Authentication is optional bearer token via AEGIS_API_TOKEN; configure the target environment and token securely.',
     'Review generated output before execution; run only against an authorized test environment.',
