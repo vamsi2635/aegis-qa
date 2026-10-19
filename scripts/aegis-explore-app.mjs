@@ -1,5 +1,5 @@
-/* global document, window */
 #!/usr/bin/env node
+/* global document, window */
 import 'dotenv/config';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
