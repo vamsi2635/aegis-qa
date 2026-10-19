@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegis-qa.local/schemas/project-discovery.schema.json",
+  "title": "Aegis QA Project Discovery Inventory",
+  "description": "Machine-readable, evidence-limited inventory emitted by the Aegis read-only discovery CLI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "projectRoot",
+    "scanMode",
+    "filesInspected",
+    "project",
+    "categories",
+    "openQuestions",
+    "warnings",
+    "limitations"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "projectRoot": { "type": "string", "minLength": 1 },
+    "scanMode": { "const": "read-only" },
+    "filesInspected": { "type": "integer", "minimum": 0 },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "packageManager", "scripts"],
+      "properties": {
+        "name": { "type": ["string", "null"] },
+        "packageManager": { "type": ["string", "null"] },
+        "scripts": {
+          "type": "object",
+          "additionalProperties": { "type": ["string", "number", "boolean", "null"] }
+        }
+      }
+    },
+    "categories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "files"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "files": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "openQuestions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}
