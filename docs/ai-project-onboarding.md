@@ -161,3 +161,21 @@ npx playwright test tests/aegis-planning.spec.ts
 ```
 
 These tests exercise the CLIs using temporary synthetic catalogs. Run the project's typecheck and lint as well, and inspect any findings before considering the change ready.
+
+## Generate review-required Playwright scaffolds
+
+Once requirement statuses and scenario links are reviewed, generate starter test files:
+
+```powershell
+npm run aegis:generate-tests
+```
+
+The generator reads `artifacts/aegis/qa-scenarios.json` and writes `artifacts/aegis/generated-tests/`, including a generation manifest and README. It only includes scenarios whose linked requirements all exist and are approved, whose IDs/steps/expected result are usable, and whose layer is `api`, `ui`, or `e2e` with automation status `candidate` or `automated`.
+
+Generated files are deliberately disabled with Playwright `test.fixme` and contain explicit TODOs plus a deliberately failing placeholder assertion. They are scaffolds, not functioning tests; implement real setup, selectors/API calls, synthetic data, cleanup, and assertions before enabling them. Scenarios with unapproved requirements or incomplete traceability are listed as excluded. Generated files are placed under `artifacts/` so they remain local by default; review them before moving any into the tracked test suite.
+
+Run generator regression tests with:
+
+```powershell
+npx playwright test tests/aegis-planning.spec.ts
+```
