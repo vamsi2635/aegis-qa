@@ -34,6 +34,10 @@ const excluded = [];
 const seen = new Set();
 const safeName = (value) => String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "scenario";
 const quote = (value) => JSON.stringify(String(value ?? ""));
+const commentText = (value) =>
+  String(value ?? "")
+    .replace(/\\*\\//g, "* /")
+    .replace(/[\\r\\n]+/g, " ");
 for (const [index, scenario] of catalog.scenarios.entries()) {
   const id = scenario && typeof scenario.id === "string" ? scenario.id : "";
   const reason = [];
@@ -59,7 +63,7 @@ for (const [index, scenario] of catalog.scenarios.entries()) {
     continue;
   }
   const fileName = safeName(id + "-" + scenario.title) + ".spec.ts";
-  const requirementRefs = scenario.requirementIds.map((reqId) => requirements.get(reqId).source + " (" + reqId + ")");
+  const requirementRefs = scenario.requirementIds.map((reqId) => commentText(requirements.get(reqId).source) + " (" + reqId + ")");
   const lines = [
     'import { test, expect } from "@playwright/test";',
     "",
@@ -68,7 +72,7 @@ for (const [index, scenario] of catalog.scenarios.entries()) {
     " * Scenario: " + id,
     " * Requirements: " + scenario.requirementIds.join(", "),
     " * Source evidence: " + requirementRefs.join("; "),
-    " * Layer: " + scenario.layer + "; priority: " + scenario.priority + "; risk: " + scenario.risk,
+    " * Layer: " + commentText(scenario.layer) + "; priority: " + commentText(scenario.priority) + "; risk: " + commentText(scenario.risk),
     " *",
     " * TODO: Implement real setup, selectors/API requests, synthetic test data, cleanup,",
     " * and assertions against the approved expected result. Never replace the fixme with",
