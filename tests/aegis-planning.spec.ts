@@ -44,7 +44,7 @@ test("risk planner ranks higher risk and priority first", async () => {
   }
 });
 
-test("test generator creates only approved, linked scaffolds and excludes unapproved scenarios", async () => {
+test("generator creates only approved, linked scaffolds and excludes unapproved scenarios", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "aegis-generate-"));
   try {
     await mkdir(path.join(root, "artifacts", "aegis"), { recursive: true });
