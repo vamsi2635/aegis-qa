@@ -11,6 +11,11 @@ export default tseslint.config(
     ignores: ['node_modules/**', 'playwright-report/**', 'test-results/**'],
   },
   js.configs.recommended,
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: globals.node },
+    rules: { 'no-empty': ['error', { allowEmptyCatch: true }] },
+  },
   ...tseslint.configs.recommended,
   {
     files: ['**/*.ts'],
