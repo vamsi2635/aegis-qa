@@ -6,14 +6,26 @@ import { chromium } from '@playwright/test';
 
 const rawTarget = process.env.BASE_URL ?? 'https://playwright.dev';
 const allowedOrigins = new Set(
-  (process.env.ALLOWED_TARGET_ORIGINS ?? 'https://playwright.dev,https://jsonplaceholder.typicode.com')
+  (
+    process.env.ALLOWED_TARGET_ORIGINS ??
+    'https://playwright.dev,https://jsonplaceholder.typicode.com'
+  )
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean)
     .map((origin) => {
       const parsed = new URL(origin);
-      if (!['http:', 'https:'].includes(parsed.protocol) || parsed.pathname !== '/' || parsed.search || parsed.hash || parsed.username || parsed.password) {
-        throw new Error('ALLOWED_TARGET_ORIGINS entries must be HTTP(S) origins without paths or credentials.');
+      if (
+        !['http:', 'https:'].includes(parsed.protocol) ||
+        parsed.pathname !== '/' ||
+        parsed.search ||
+        parsed.hash ||
+        parsed.username ||
+        parsed.password
+      ) {
+        throw new Error(
+          'ALLOWED_TARGET_ORIGINS entries must be HTTP(S) origins without paths or credentials.',
+        );
       }
       return parsed.origin;
     }),
@@ -25,12 +37,22 @@ try {
   console.error('BASE_URL must be a valid absolute URL.');
   process.exit(2);
 }
-if (!['http:', 'https:'].includes(target.protocol) || target.username || target.password || target.search || target.hash) {
-  console.error('BASE_URL must use HTTP(S) and must not contain credentials, a query string, or a fragment.');
+if (
+  !['http:', 'https:'].includes(target.protocol) ||
+  target.username ||
+  target.password ||
+  target.search ||
+  target.hash
+) {
+  console.error(
+    'BASE_URL must use HTTP(S) and must not contain credentials, a query string, or a fragment.',
+  );
   process.exit(2);
 }
 if (!allowedOrigins.has(target.origin)) {
-  console.error('Target origin is not allowlisted. Add only an approved non-production origin to ALLOWED_TARGET_ORIGINS.');
+  console.error(
+    'Target origin is not allowlisted. Add only an approved non-production origin to ALLOWED_TARGET_ORIGINS.',
+  );
   process.exit(2);
 }
 
@@ -52,6 +74,11 @@ try {
     waitUntil: 'domcontentloaded',
     timeout: timeoutMs,
   });
+  if (new URL(page.url()).origin !== target.origin) {
+    throw new Error(
+      'Navigation redirected to a different origin; inspection stopped for safety.',
+    );
+  }
   await page.locator('body').waitFor({ state: 'attached', timeout: timeoutMs });
 
   const snapshot = await page.evaluate(() => {
@@ -67,31 +94,43 @@ try {
           sameOrigin: element.origin === window.location.origin,
         };
       })
-      .filter((link) => link.href.startsWith('http:') || link.href.startsWith('https:'))
+      .filter(
+        (link) => link.href.startsWith('http:') || link.href.startsWith('https:'),
+      )
       .slice(0, 200);
 
-    const forms = Array.from(document.querySelectorAll('form')).map((form, index) => ({
-      index,
-      method: (form.getAttribute('method') ?? 'get').toLowerCase(),
-      action: form.action || window.location.href,
-      fields: Array.from(form.querySelectorAll('input, select, textarea, button')).map((field) => {
-        const element = field;
-        return {
-          tag: element.tagName.toLowerCase(),
-          type: cleanText(element.type || element.tagName.toLowerCase()),
-          name: cleanText(element.name),
-          id: cleanText(element.id),
-          label: cleanText(
-            element.labels ? Array.from(element.labels).map((label) => label.innerText).join(' ') : '',
-          ),
-          required: element.required,
-        };
+    const forms = Array.from(document.querySelectorAll('form')).map(
+      (form, index) => ({
+        index,
+        method: (form.getAttribute('method') ?? 'get').toLowerCase(),
+        action: form.action || window.location.href,
+        fields: Array.from(
+          form.querySelectorAll('input, select, textarea, button'),
+        ).map((field) => {
+          const element = field;
+          return {
+            tag: element.tagName.toLowerCase(),
+            type: cleanText(element.type || element.tagName.toLowerCase()),
+            name: cleanText(element.name),
+            id: cleanText(element.id),
+            label: cleanText(
+              element.labels
+                ? Array.from(element.labels)
+                    .map((label) => label.innerText)
+                    .join(' ')
+                : '',
+            ),
+            required: element.required,
+          };
+        }),
       }),
-    }));
+    );
 
     return {
       title: cleanText(document.title),
-      description: cleanText(document.querySelector('meta[name="description"]')?.getAttribute('content')),
+      description: cleanText(
+        document.querySelector('meta[name="description"]')?.getAttribute('content'),
+      ),
       language: document.documentElement.lang || null,
       headings: Array.from(document.querySelectorAll('h1, h2, h3'))
         .map((heading) => ({
@@ -102,12 +141,22 @@ try {
         .slice(0, 100),
       links,
       forms,
-      buttons: Array.from(document.querySelectorAll('button, input[type="button"], input[type="submit"]'))
-        .map((button) => cleanText(button.innerText || button.value || button.getAttribute('aria-label')))
+      buttons: Array.from(
+        document.querySelectorAll(
+          'button, input[type="button"], input[type="submit"]',
+        ),
+      )
+        .map((button) =>
+          cleanText(
+            button.innerText || button.value || button.getAttribute('aria-label'),
+          ),
+        )
         .filter(Boolean)
         .slice(0, 100),
-      imagesWithoutAlt: document.querySelectorAll('img:not([alt]), img[alt=""]').length,
-      passwordFieldCount: document.querySelectorAll('input[type="password"]').length,
+      imagesWithoutAlt: document.querySelectorAll('img:not([alt]), img[alt=""]')
+        .length,
+      passwordFieldCount: document.querySelectorAll('input[type="password"]')
+        .length,
     };
   });
 
@@ -116,7 +165,7 @@ try {
     generatedAt: new Date().toISOString(),
     mode: 'read-only single-page inspection',
     target: target.origin,
-    finalUrl: new URL(page.url()).origin === target.origin ? page.url() : '[redirected to a different origin; details withheld]',
+    finalUrl: page.url(),
     httpStatus: response?.status() ?? null,
     page: snapshot,
     safety: {
@@ -158,25 +207,56 @@ try {
     '',
     '## Headings',
     '',
-    ...(snapshot.headings.length ? snapshot.headings.map((heading) => '- ' + heading.level + ': ' + heading.text) : ['- No headings found']),
+    ...(snapshot.headings.length
+      ? snapshot.headings.map(
+          (heading) => '- ' + heading.level + ': ' + heading.text,
+        )
+      : ['- No headings found']),
     '',
     '## Buttons',
     '',
-    ...(snapshot.buttons.length ? snapshot.buttons.map((button) => '- ' + button) : ['- No buttons found']),
+    ...(snapshot.buttons.length
+      ? snapshot.buttons.map((button) => '- ' + button)
+      : ['- No buttons found']),
     '',
     '## Forms (metadata only; no field values collected)',
     '',
     ...(snapshot.forms.length
       ? snapshot.forms.flatMap((form) => [
-          '- Form ' + form.index + ': method=' + form.method + ', action=' + form.action,
-          ...form.fields.map((field) => '  - ' + field.tag + ' type=' + field.type + ' name=' + (field.name || '(unnamed)') + ' id=' + (field.id || '(no id)') + ' required=' + field.required),
+          '- Form ' +
+            form.index +
+            ': method=' +
+            form.method +
+            ', action=' +
+            form.action,
+          ...form.fields.map(
+            (field) =>
+              '  - ' +
+              field.tag +
+              ' type=' +
+              field.type +
+              ' name=' +
+              (field.name || '(unnamed)') +
+              ' id=' +
+              (field.id || '(no id)') +
+              ' required=' +
+              field.required,
+          ),
         ])
       : ['- No forms found']),
     '',
     '## Links (inventory only; not followed)',
     '',
     ...(snapshot.links.length
-      ? snapshot.links.map((link) => '- [' + (link.text || 'untitled link') + '](' + link.href + ') — ' + (link.sameOrigin ? 'same origin' : 'external origin'))
+      ? snapshot.links.map(
+          (link) =>
+            '- [' +
+            (link.text || 'untitled link') +
+            '](' +
+            link.href +
+            ') — ' +
+            (link.sameOrigin ? 'same origin' : 'external origin'),
+        )
       : ['- No links found']),
     '',
     '## Limitations and review required',
@@ -190,9 +270,14 @@ try {
   console.log('Aegis URL discovery completed.');
   console.log('Markdown report: ' + mdPath);
   console.log('JSON report: ' + jsonPath);
-  console.log('Review the reports before planning tests. No forms were submitted and no links were followed.');
+  console.log(
+    'Review the reports before planning tests. No forms were submitted and no links were followed.',
+  );
 } catch (error) {
-  console.error('Aegis URL discovery failed:', error instanceof Error ? error.message : String(error));
+  console.error(
+    'Aegis URL discovery failed:',
+    error instanceof Error ? error.message : String(error),
+  );
   process.exitCode = 1;
 } finally {
   await browser.close();
