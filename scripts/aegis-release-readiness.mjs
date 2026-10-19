@@ -40,7 +40,15 @@ for (const [index, tc] of catalog.scenarios.entries()) {
   }
   const status = tc.executionStatus ?? "not-run";
   if (Object.hasOwn(counts, status)) counts[status]++;
-  else counts.unspecified++;
+  else {
+    counts.unspecified++;
+    blockers.push(
+      (typeof tc.id === "string" && tc.id.trim() ? tc.id : "Scenario at index " + index) +
+        ": invalid execution status (" +
+        String(status) +
+        ").",
+    );
+  }
   const id = typeof tc.id === "string" && tc.id.trim() ? tc.id : "Scenario at index " + index;
   const linked = Array.isArray(tc.requirementIds) ? tc.requirementIds : [];
   const invalidLinks = linked.filter((reqId) => !requirements.has(reqId));
