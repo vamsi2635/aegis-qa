@@ -123,3 +123,23 @@ node scripts/aegis-discover.mjs "C:\\path\\to\\target-project" "artifacts/aegis/
 ```
 
 The scanner inventories recognized manifests, test files, likely route/application entry points, API contracts, documentation, and CI/CD configuration. It records package scripts and prompts the analyst to resolve missing business context. It does not install packages, execute application code, inspect file contents beyond the root package manifest, call external services, or modify application source. Common secret files and generated/dependency folders are excluded. Review the report before using it for planning; filename heuristics can miss routes and misclassify files.
+
+## Next executable step: requirements-to-scenario traceability
+
+After discovery and product-owner review, create a working catalog at `artifacts/aegis/qa-scenarios.json`. Start from `docs/qa-scenarios.example.json`, but replace all placeholders with evidence from the target project's approved requirements.
+
+Each requirement needs a stable `REQ-...` ID, source reference, and status (`approved`, `needs-clarification`, or `assumption`). Each scenario needs a stable `TC-...` ID, one or more valid requirement links, role, preconditions, secret-free test-data references, actionable steps, expected result, priority, risk, test layer, and automation status. Do not automate an assumed expected result as if it were approved behavior.
+
+Run the structural and traceability checks:
+
+```powershell
+npm run aegis:validate-scenarios
+```
+
+The command reads `artifacts/aegis/qa-scenarios.json` and writes `artifacts/aegis/qa-scenario-validation.md`. You can provide a different project root, input JSON path, and report path:
+
+```powershell
+node scripts/aegis-validate-scenarios.mjs "." "artifacts/aegis/qa-scenarios.json" "artifacts/aegis/qa-scenario-validation.md"
+```
+
+The validator checks required fields, stable ID formats, duplicate IDs, unknown requirement links, allowed enum values, and requirements without scenarios. Unlinked or unapproved requirements are warnings; malformed catalogs fail with a non-zero exit code. The companion schema is `schemas/qa-scenario-catalog.schema.json`. The CLI uses Node.js built-ins and does not install dependencies, execute application code, or modify application source. These checks do not replace full JSON Schema validation or human review.
