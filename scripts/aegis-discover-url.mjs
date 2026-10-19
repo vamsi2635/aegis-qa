@@ -75,15 +75,12 @@ try {
     timeout: timeoutMs,
   });
   if (new URL(page.url()).origin !== target.origin) {
-    throw new Error(
-      'Navigation redirected to a different origin; inspection stopped for safety.',
-    );
+    throw new Error('Navigation redirected to a different origin; inspection stopped for safety.');
   }
   await page.locator('body').waitFor({ state: 'attached', timeout: timeoutMs });
 
   const snapshot = await page.evaluate(() => {
-    const cleanText = (value) =>
-      (value ?? '').replace(/\\s+/g, ' ').trim().slice(0, 300);
+    const cleanText = (value) => (value ?? '').replace(/\\s+/g, ' ').trim().slice(0, 300);
 
     const links = Array.from(document.querySelectorAll('a[href]'))
       .map((anchor) => {
@@ -94,37 +91,31 @@ try {
           sameOrigin: element.origin === window.location.origin,
         };
       })
-      .filter(
-        (link) => link.href.startsWith('http:') || link.href.startsWith('https:'),
-      )
+      .filter((link) => link.href.startsWith('http:') || link.href.startsWith('https:'))
       .slice(0, 200);
 
-    const forms = Array.from(document.querySelectorAll('form')).map(
-      (form, index) => ({
-        index,
-        method: (form.getAttribute('method') ?? 'get').toLowerCase(),
-        action: form.action || window.location.href,
-        fields: Array.from(
-          form.querySelectorAll('input, select, textarea, button'),
-        ).map((field) => {
-          const element = field;
-          return {
-            tag: element.tagName.toLowerCase(),
-            type: cleanText(element.type || element.tagName.toLowerCase()),
-            name: cleanText(element.name),
-            id: cleanText(element.id),
-            label: cleanText(
-              element.labels
-                ? Array.from(element.labels)
-                    .map((label) => label.innerText)
-                    .join(' ')
-                : '',
-            ),
-            required: element.required,
-          };
-        }),
+    const forms = Array.from(document.querySelectorAll('form')).map((form, index) => ({
+      index,
+      method: (form.getAttribute('method') ?? 'get').toLowerCase(),
+      action: form.action || window.location.href,
+      fields: Array.from(form.querySelectorAll('input, select, textarea, button')).map((field) => {
+        const element = field;
+        return {
+          tag: element.tagName.toLowerCase(),
+          type: cleanText(element.type || element.tagName.toLowerCase()),
+          name: cleanText(element.name),
+          id: cleanText(element.id),
+          label: cleanText(
+            element.labels
+              ? Array.from(element.labels)
+                  .map((label) => label.innerText)
+                  .join(' ')
+              : '',
+          ),
+          required: element.required,
+        };
       }),
-    );
+    }));
 
     return {
       title: cleanText(document.title),
@@ -142,21 +133,15 @@ try {
       links,
       forms,
       buttons: Array.from(
-        document.querySelectorAll(
-          'button, input[type="button"], input[type="submit"]',
-        ),
+        document.querySelectorAll('button, input[type="button"], input[type="submit"]'),
       )
         .map((button) =>
-          cleanText(
-            button.innerText || button.value || button.getAttribute('aria-label'),
-          ),
+          cleanText(button.innerText || button.value || button.getAttribute('aria-label')),
         )
         .filter(Boolean)
         .slice(0, 100),
-      imagesWithoutAlt: document.querySelectorAll('img:not([alt]), img[alt=""]')
-        .length,
-      passwordFieldCount: document.querySelectorAll('input[type="password"]')
-        .length,
+      imagesWithoutAlt: document.querySelectorAll('img:not([alt]), img[alt=""]').length,
+      passwordFieldCount: document.querySelectorAll('input[type="password"]').length,
     };
   });
 
@@ -208,9 +193,7 @@ try {
     '## Headings',
     '',
     ...(snapshot.headings.length
-      ? snapshot.headings.map(
-          (heading) => '- ' + heading.level + ': ' + heading.text,
-        )
+      ? snapshot.headings.map((heading) => '- ' + heading.level + ': ' + heading.text)
       : ['- No headings found']),
     '',
     '## Buttons',
@@ -223,12 +206,7 @@ try {
     '',
     ...(snapshot.forms.length
       ? snapshot.forms.flatMap((form) => [
-          '- Form ' +
-            form.index +
-            ': method=' +
-            form.method +
-            ', action=' +
-            form.action,
+          '- Form ' + form.index + ': method=' + form.method + ', action=' + form.action,
           ...form.fields.map(
             (field) =>
               '  - ' +

@@ -210,7 +210,6 @@ The importer matches `TC-...` IDs in Playwright suite/spec/test titles, updates 
 
 The importer does not prove that the report is current, that its source environment is approved, or that evidence files are trustworthy. Use a fresh report from the intended run and verify it manually. Do not use this importer to turn generated `test.fixme` scaffolds into passing results; those are intentionally disabled and are not functional product tests.
 
-
 ## URL-only onboarding: safe first inspection
 
 When only a running application URL is available, Aegis can create a read-only first-page inventory. This is a reconnaissance artifact, not a full application discovery or functional test suite.
