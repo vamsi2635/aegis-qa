@@ -116,7 +116,7 @@ From the target project root, run:
 npm run aegis:discover
 ```
 
-The default output is `artifacts/aegis/project-discovery.md`. You can supply a different project root and output path:
+The default outputs are `artifacts/aegis/project-discovery.md` for human review and `artifacts/aegis/project-discovery.json` for downstream agent handoffs. The JSON follows `schemas/project-discovery.schema.json`. When you supply a custom Markdown output path, the CLI writes a sibling JSON file with the same base name. You can supply a different project root and output path:
 
 ```powershell
 node scripts/aegis-discover.mjs "C:\\path\\to\\target-project" "artifacts/aegis/project-discovery.md"
