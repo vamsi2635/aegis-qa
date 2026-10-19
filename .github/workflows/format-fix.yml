@@ -2,6 +2,9 @@ name: Apply Prettier formatting
 
 on:
   workflow_dispatch:
+  push:
+    branches: [feat/ai-qa-orchestration-foundation]
+    paths: [.github/workflows/format-fix.yml]
 
 permissions:
   contents: write
