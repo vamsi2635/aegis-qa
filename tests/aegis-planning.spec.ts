@@ -107,7 +107,7 @@ test("release readiness audit blocks failed high-risk scenarios and accepts a re
     expect(passed.status).toBe(0);
     report = await readFile(path.join(root, "artifacts", "aegis", "release-readiness.md"), "utf8");
     expect(report).toContain("NO CATALOG-BASED BLOCKERS DETECTED");
-    expect(report).toContain("human release-owner checklist");
+    expect(report).toContain("Human release-owner checklist");
   } finally {
     await rm(root, { recursive: true, force: true });
   }
