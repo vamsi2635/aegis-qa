@@ -105,3 +105,21 @@ The final report must include:
 - Residual risks and a recommendation: ready for human release review, not ready, or inconclusive.
 
 Passing tests are evidence, not proof that the system is bug-free. Never claim complete coverage unless the scope and evidence support that claim.
+
+## First executable step: generate a discovery inventory
+
+The repository includes a read-only Node.js CLI to create a first-pass inventory before the analyst agent performs deeper source and requirements review.
+
+From the target project root, run:
+
+```powershell
+npm run aegis:discover
+```
+
+The default output is `artifacts/aegis/project-discovery.md`. You can supply a different project root and output path:
+
+```powershell
+node scripts/aegis-discover.mjs "C:\\path\\to\\target-project" "artifacts/aegis/project-discovery.md"
+```
+
+The scanner inventories recognized manifests, test files, likely route/application entry points, API contracts, documentation, and CI/CD configuration. It records package scripts and prompts the analyst to resolve missing business context. It does not install packages, execute application code, inspect file contents beyond the root package manifest, call external services, or modify application source. Common secret files and generated/dependency folders are excluded. Review the report before using it for planning; filename heuristics can miss routes and misclassify files.
