@@ -1,0 +1,36 @@
+name: Temporary Aegis formatting pass
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/aegis-explore-app.mjs'
+      - 'schemas/application-onboarding.schema.json'
+      - 'docs/application-onboarding.example.json'
+      - 'docs/full-application-testing-blueprint.md'
+      - 'docs/ai-project-onboarding.md'
+      - 'package.json'
+      - '.github/workflows/aegis-format-fix.yml'
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write scripts/aegis-explore-app.mjs schemas/application-onboarding.schema.json docs/application-onboarding.example.json docs/full-application-testing-blueprint.md docs/ai-project-onboarding.md package.json
+      - name: Commit formatted files
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add scripts/aegis-explore-app.mjs schemas/application-onboarding.schema.json docs/application-onboarding.example.json docs/full-application-testing-blueprint.md docs/ai-project-onboarding.md package.json
+            git commit -m "Format Aegis onboarding and explorer files"
+            git push origin main
+          fi
