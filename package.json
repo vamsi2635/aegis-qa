@@ -15,7 +15,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "aegis:discover": "node scripts/aegis-discover.mjs ."
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
