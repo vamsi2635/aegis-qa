@@ -22,7 +22,8 @@
     "aegis:generate-tests": "node scripts/aegis-generate-tests.mjs .",
     "aegis:release-readiness": "node scripts/aegis-release-readiness.mjs .",
     "aegis:import-results": "node scripts/aegis-import-playwright-results.mjs .",
-    "aegis:discover-url": "node scripts/aegis-discover-url.mjs"
+    "aegis:discover-url": "node scripts/aegis-discover-url.mjs",
+    "aegis:explore-app": "node scripts/aegis-explore-app.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
