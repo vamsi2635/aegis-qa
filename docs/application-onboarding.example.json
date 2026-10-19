@@ -50,7 +50,10 @@
       "name": "Approved user sign-in",
       "priority": "P1",
       "roles": ["standard-user"],
-      "preconditions": ["Approved test account exists", "Expected behavior confirmed by application owner"],
+      "preconditions": [
+        "Approved test account exists",
+        "Expected behavior confirmed by application owner"
+      ],
       "steps": ["Open sign-in page", "Sign in with approved test account"],
       "expectedOutcomeStatus": "needs-clarification",
       "testDataStrategy": "Synthetic data only",

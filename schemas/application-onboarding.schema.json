@@ -5,7 +5,15 @@
   "description": "Explicit, reviewable inputs for safe application discovery and test generation. Secrets must be supplied through environment variables or ignored local files.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "application", "safety", "environments", "roles", "journeys", "coverage"],
+  "required": [
+    "schemaVersion",
+    "application",
+    "safety",
+    "environments",
+    "roles",
+    "journeys",
+    "coverage"
+  ],
   "properties": {
     "schemaVersion": { "const": "1.0.0" },
     "application": {
@@ -19,16 +27,33 @@
         "frontendTechnology": { "type": ["string", "null"] },
         "backendTechnology": { "type": ["string", "null"] },
         "apiBaseUrl": { "type": ["string", "null"], "format": "uri" },
-        "openApiSpec": { "type": ["string", "null"], "description": "Local file path or approved HTTPS specification URL; do not include credentials." }
+        "openApiSpec": {
+          "type": ["string", "null"],
+          "description": "Local file path or approved HTTPS specification URL; do not include credentials."
+        }
       }
     },
     "safety": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["environmentType", "authorizedOrigins", "allowWriteActions", "allowDestructiveActions", "maxPages", "maxDurationSeconds"],
+      "required": [
+        "environmentType",
+        "authorizedOrigins",
+        "allowWriteActions",
+        "allowDestructiveActions",
+        "maxPages",
+        "maxDurationSeconds"
+      ],
       "properties": {
-        "environmentType": { "enum": ["local", "development", "test", "staging", "production", "unknown"] },
-        "authorizedOrigins": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "format": "uri", "pattern": "^https?://" } },
+        "environmentType": {
+          "enum": ["local", "development", "test", "staging", "production", "unknown"]
+        },
+        "authorizedOrigins": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "format": "uri", "pattern": "^https?://" }
+        },
         "allowWriteActions": { "type": "boolean", "default": false },
         "allowDestructiveActions": { "type": "boolean", "default": false },
         "allowExternalLinks": { "type": "boolean", "default": false },
@@ -56,8 +81,13 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "strategy": { "enum": ["none", "storageState", "loginForm", "oidcManual", "customFixture", "unknown"] },
-        "storageStatePath": { "type": ["string", "null"], "description": "Local ignored path; never commit storage-state files." },
+        "strategy": {
+          "enum": ["none", "storageState", "loginForm", "oidcManual", "customFixture", "unknown"]
+        },
+        "storageStatePath": {
+          "type": ["string", "null"],
+          "description": "Local ignored path; never commit storage-state files."
+        },
         "usernameEnv": { "type": ["string", "null"] },
         "passwordEnv": { "type": ["string", "null"] },
         "loginPath": { "type": ["string", "null"] },
@@ -73,7 +103,10 @@
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
           "description": { "type": "string", "minLength": 1 },
-          "credentialRef": { "type": ["string", "null"], "description": "Environment-variable or secret-manager reference only; never a password/token." },
+          "credentialRef": {
+            "type": ["string", "null"],
+            "description": "Environment-variable or secret-manager reference only; never a password/token."
+          },
           "permissions": { "type": "array", "items": { "type": "string" } },
           "expectedLandingPath": { "type": ["string", "null"] }
         }
@@ -120,7 +153,17 @@
         "additionalProperties": false,
         "required": ["type", "reference", "trust"],
         "properties": {
-          "type": { "enum": ["requirements", "openapi", "repository", "database-schema", "logs", "manual-note", "other"] },
+          "type": {
+            "enum": [
+              "requirements",
+              "openapi",
+              "repository",
+              "database-schema",
+              "logs",
+              "manual-note",
+              "other"
+            ]
+          },
           "reference": { "type": "string", "minLength": 1 },
           "trust": { "enum": ["authoritative", "reviewed", "unverified"] }
         }

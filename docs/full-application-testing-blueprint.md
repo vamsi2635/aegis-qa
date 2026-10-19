@@ -38,18 +38,18 @@ The example manifest is deliberately non-runnable and uses an invalid placeholde
 
 ## Required input checklist for real projects
 
-| Input | Why it matters | Fallback if unavailable |
-|---|---|---|
-| Approved non-production UI URL | Entry point for browser discovery | Passive discovery only |
-| API base URL and OpenAPI/API docs | Contract and API tests | Mark API coverage unknown |
-| Test credentials or approved storage state per role | Authenticated routes and role coverage | Mark protected areas inaccessible |
-| Role/permission matrix | Authorization expectations | Ask owner; never guess access rules |
-| User stories/acceptance criteria | Expected business outcomes | Report observed UI only; do not invent expectations |
-| Synthetic test data and reset/cleanup strategy | Repeatable stateful tests | Do not perform writes |
-| Integrations/webhooks/email/payment sandbox | End-to-end behavior | Mock or mark as out of scope |
-| Build/version and environment identity | Reproducibility | Mark run provenance incomplete |
-| Permission and action policy | Safe exploration/execution | Read-only, same-origin mode only |
-| CI access and artifact retention | Repeatable scheduled regression | Local report only |
+| Input                                               | Why it matters                         | Fallback if unavailable                             |
+| --------------------------------------------------- | -------------------------------------- | --------------------------------------------------- |
+| Approved non-production UI URL                      | Entry point for browser discovery      | Passive discovery only                              |
+| API base URL and OpenAPI/API docs                   | Contract and API tests                 | Mark API coverage unknown                           |
+| Test credentials or approved storage state per role | Authenticated routes and role coverage | Mark protected areas inaccessible                   |
+| Role/permission matrix                              | Authorization expectations             | Ask owner; never guess access rules                 |
+| User stories/acceptance criteria                    | Expected business outcomes             | Report observed UI only; do not invent expectations |
+| Synthetic test data and reset/cleanup strategy      | Repeatable stateful tests              | Do not perform writes                               |
+| Integrations/webhooks/email/payment sandbox         | End-to-end behavior                    | Mock or mark as out of scope                        |
+| Build/version and environment identity              | Reproducibility                        | Mark run provenance incomplete                      |
+| Permission and action policy                        | Safe exploration/execution             | Read-only, same-origin mode only                    |
+| CI access and artifact retention                    | Repeatable scheduled regression        | Local report only                                   |
 
 ## Security and privacy controls
 

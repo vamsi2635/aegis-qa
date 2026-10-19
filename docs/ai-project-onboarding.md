@@ -235,7 +235,6 @@ Review the inventory with the product/QA owner. The next step is to identify app
 
 URL inspection cannot reliably discover authenticated pages, JavaScript-only states, API contracts, server-side validation, authorization rules, data persistence, integrations, or negative-path expectations. If the page requires login or the app has multiple critical flows, request a dedicated test account and explicit test scope before extending discovery. Never use production systems or real customer data for write-capable testing.
 
-
 ## Bounded multi-page passive exploration
 
 Aegis now includes a first bounded same-origin crawler for an owner-approved application manifest. It inventories multiple reachable pages without clicking buttons or submitting forms:
