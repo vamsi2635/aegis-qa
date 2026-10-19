@@ -18,7 +18,8 @@
     "format:check": "prettier --check .",
     "aegis:discover": "node scripts/aegis-discover.mjs .",
     "aegis:validate-scenarios": "node scripts/aegis-validate-scenarios.mjs .",
-    "aegis:plan-scenarios": "node scripts/aegis-plan-scenarios.mjs ."
+    "aegis:plan-scenarios": "node scripts/aegis-plan-scenarios.mjs .",
+    "aegis:generate-tests": "node scripts/aegis-generate-tests.mjs ."
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
