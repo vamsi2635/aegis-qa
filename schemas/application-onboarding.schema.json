@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aegis-qa.local/schemas/application-onboarding.schema.json",
+  "title": "Aegis QA Application Onboarding Manifest",
+  "description": "Explicit, reviewable inputs for safe application discovery and test generation. Secrets must be supplied through environment variables or ignored local files.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "application", "safety", "environments", "roles", "journeys", "coverage"],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "application": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "baseUrl"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "baseUrl": { "type": "string", "format": "uri", "pattern": "^https?://" },
+        "repositoryPath": { "type": ["string", "null"] },
+        "frontendTechnology": { "type": ["string", "null"] },
+        "backendTechnology": { "type": ["string", "null"] },
+        "apiBaseUrl": { "type": ["string", "null"], "format": "uri" },
+        "openApiSpec": { "type": ["string", "null"], "description": "Local file path or approved HTTPS specification URL; do not include credentials." }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["environmentType", "authorizedOrigins", "allowWriteActions", "allowDestructiveActions", "maxPages", "maxDurationSeconds"],
+      "properties": {
+        "environmentType": { "enum": ["local", "development", "test", "staging", "production", "unknown"] },
+        "authorizedOrigins": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "format": "uri", "pattern": "^https?://" } },
+        "allowWriteActions": { "type": "boolean", "default": false },
+        "allowDestructiveActions": { "type": "boolean", "default": false },
+        "allowExternalLinks": { "type": "boolean", "default": false },
+        "maxPages": { "type": "integer", "minimum": 1, "maximum": 500, "default": 50 },
+        "maxDurationSeconds": { "type": "integer", "minimum": 10, "maximum": 3600, "default": 300 },
+        "robotsOrRateLimitNotes": { "type": ["string", "null"] }
+      }
+    },
+    "environments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "baseUrl", "kind"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "baseUrl": { "type": "string", "format": "uri", "pattern": "^https?://" },
+          "kind": { "enum": ["local", "development", "test", "staging", "production", "unknown"] },
+          "apiBaseUrl": { "type": ["string", "null"], "format": "uri" }
+        }
+      }
+    },
+    "authentication": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "strategy": { "enum": ["none", "storageState", "loginForm", "oidcManual", "customFixture", "unknown"] },
+        "storageStatePath": { "type": ["string", "null"], "description": "Local ignored path; never commit storage-state files." },
+        "usernameEnv": { "type": ["string", "null"] },
+        "passwordEnv": { "type": ["string", "null"] },
+        "loginPath": { "type": ["string", "null"] },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "description", "credentialRef", "permissions"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "description": { "type": "string", "minLength": 1 },
+          "credentialRef": { "type": ["string", "null"], "description": "Environment-variable or secret-manager reference only; never a password/token." },
+          "permissions": { "type": "array", "items": { "type": "string" } },
+          "expectedLandingPath": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "journeys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "priority", "steps", "expectedOutcomeStatus"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^JNY-[A-Z0-9-]+$" },
+          "name": { "type": "string", "minLength": 1 },
+          "priority": { "enum": ["P0", "P1", "P2", "P3"] },
+          "roles": { "type": "array", "items": { "type": "string" } },
+          "preconditions": { "type": "array", "items": { "type": "string" } },
+          "steps": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "expectedOutcomeStatus": { "enum": ["approved", "needs-clarification", "assumption"] },
+          "testDataStrategy": { "type": ["string", "null"] },
+          "cleanupStrategy": { "type": ["string", "null"] },
+          "destructive": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ui", "api", "authorization", "accessibility", "performance", "security"],
+      "properties": {
+        "ui": { "type": "boolean" },
+        "api": { "type": "boolean" },
+        "authorization": { "type": "boolean" },
+        "accessibility": { "type": "boolean" },
+        "performance": { "type": "boolean" },
+        "security": { "type": "boolean" },
+        "browsers": { "type": "array", "items": { "enum": ["chromium", "firefox", "webkit"] } }
+      }
+    },
+    "evidenceSources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "reference", "trust"],
+        "properties": {
+          "type": { "enum": ["requirements", "openapi", "repository", "database-schema", "logs", "manual-note", "other"] },
+          "reference": { "type": "string", "minLength": 1 },
+          "trust": { "enum": ["authoritative", "reviewed", "unverified"] }
+        }
+      }
+    }
+  }
+}
