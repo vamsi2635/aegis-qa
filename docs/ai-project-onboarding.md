@@ -143,3 +143,21 @@ node scripts/aegis-validate-scenarios.mjs "." "artifacts/aegis/qa-scenarios.json
 ```
 
 The validator checks required fields, stable ID formats, duplicate IDs, unknown requirement links, allowed enum values, and requirements without scenarios. Unlinked or unapproved requirements are warnings; malformed catalogs fail with a non-zero exit code. The companion schema is `schemas/qa-scenario-catalog.schema.json`. The CLI uses Node.js built-ins and does not install dependencies, execute application code, or modify application source. These checks do not replace full JSON Schema validation or human review.
+
+## Generate a transparent risk-ranked plan
+
+After the catalog passes structural validation, generate a planning report:
+
+```powershell
+npm run aegis:plan-scenarios
+```
+
+The command reads `artifacts/aegis/qa-scenarios.json` and writes `artifacts/aegis/risk-ranked-test-plan.md`. It ranks catalog entries using a visible heuristic based on declared risk, priority, and test layer; it also reports unlinked requirements and scenarios with missing/unknown links or expected results. The score is a sorting aid, not a probability estimate. Review and adjust priorities with product and QA owners; the tool does not infer business requirements or generate executable product tests.
+
+To run focused regression tests for the catalog validator and planner:
+
+```powershell
+npx playwright test tests/aegis-planning.spec.ts
+```
+
+These tests exercise the CLIs using temporary synthetic catalogs. Run the project's typecheck and lint as well, and inspect any findings before considering the change ready.
