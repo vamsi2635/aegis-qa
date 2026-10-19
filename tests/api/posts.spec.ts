@@ -29,4 +29,10 @@ test.describe('Demo API contract', () => {
     expect(post.title.trim().length).toBeGreaterThan(0);
     expect(post.body.trim().length).toBeGreaterThan(0);
   });
+
+  test('returns 404 for an unknown API route', async ({ request }) => {
+    const response = await request.get(`${env.apiBaseURL}/unknown-resource`);
+
+    expect(response.status()).toBe(404);
+  });
 });
