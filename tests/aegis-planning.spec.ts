@@ -66,6 +66,8 @@ test("test generator creates only approved, linked scaffolds and excludes unappr
     const scaffoldName = files.find((file) => file.startsWith("tc-ok-") && file.endsWith(".spec.ts"));
     expect(scaffoldName).toBeTruthy();
     expect(files.some((file) => file.startsWith("tc-pending-") && file.endsWith(".spec.ts"))).toBeFalsy();
+    expect(scaffoldName).toBeDefined();
+    if (!scaffoldName) throw new Error("Expected approved scenario scaffold was not generated.");
     const scaffold = await readFile(path.join(out, scaffoldName), "utf8");
     expect(scaffold).toContain("test.fixme");
     expect(scaffold).toContain("expect(true).toBe(false)");
@@ -101,7 +103,9 @@ test("release readiness audit blocks failed high-risk scenarios and accepts a re
     let report = await readFile(path.join(root, "artifacts", "aegis", "release-readiness.md"), "utf8");
     expect(report).toContain("NOT READY — BLOCKERS FOUND");
     expect(report).toContain("TC-CORE: execution failed.");
-    base.scenarios[0].executionStatus = "passed";
+    const coreScenario = base.scenarios[0];
+    if (!coreScenario) throw new Error("Expected core scenario fixture.");
+    coreScenario.executionStatus = "passed";
     await writeFile(catalogPath, JSON.stringify(base));
     const passed = spawnSync(process.execPath, [command, root], { encoding: "utf8" });
     expect(passed.status).toBe(0);
