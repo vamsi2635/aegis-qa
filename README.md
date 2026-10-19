@@ -44,18 +44,18 @@ This allowlist is a safety guard, not an environment classifier. Keep production
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| npm test | Run all Playwright tests |
-| npm run test:ui | Run UI tests |
-| npm run test:api | Run API tests |
-| npm run test:smoke | Run smoke-tagged tests |
-| npm run test:headed | Run with visible browser |
-| npm run test:debug | Open Playwright debugging mode |
-| npm run report | Open latest HTML report |
-| npm run typecheck | TypeScript static checks |
-| npm run lint | ESLint |
-| npm run format:check | Check formatting |
+| Command              | Purpose                        |
+| -------------------- | ------------------------------ |
+| npm test             | Run all Playwright tests       |
+| npm run test:ui      | Run UI tests                   |
+| npm run test:api     | Run API tests                  |
+| npm run test:smoke   | Run smoke-tagged tests         |
+| npm run test:headed  | Run with visible browser       |
+| npm run test:debug   | Open Playwright debugging mode |
+| npm run report       | Open latest HTML report        |
+| npm run typecheck    | TypeScript static checks       |
+| npm run lint         | ESLint                         |
+| npm run format:check | Check formatting               |
 
 ## Onboard a new project
 

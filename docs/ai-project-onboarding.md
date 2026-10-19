@@ -28,6 +28,7 @@ No application files are changed in this phase.
 ## Phase 2 — Requirements and test planning
 
 Create:
+
 - docs/qa/test-strategy.md
 - docs/qa/requirements-traceability.md
 - docs/qa/test-scenarios.md
@@ -57,6 +58,7 @@ List proposed file changes and the reason for each before broad changes.
 Generate tests by risk-ranked feature slices, not by creating hundreds of unreviewed tests at once.
 
 For each batch:
+
 1. Link tests to scenario IDs.
 2. Use stable, user-observable assertions and the project's established conventions.
 3. Keep tests isolated and deterministic.
@@ -68,6 +70,7 @@ For each batch:
 ## Phase 5 — Failure diagnosis and healing
 
 Classify each failure as:
+
 - Product defect
 - Test defect
 - Environment or test-data issue
@@ -82,6 +85,7 @@ Application-code fixes require explicit authorization. Keep the original failure
 Inspect the existing CI/CD provider and workflows before changing them.
 
 Propose a staged pipeline appropriate to the project, such as:
+
 - Install with the lockfile and static checks.
 - Unit/integration tests already present in the project.
 - API and UI smoke tests against approved non-production environments.
@@ -95,6 +99,7 @@ Use least-privilege permissions, protected secrets, pinned actions where require
 ## Phase 7 — Readiness report
 
 The final report must include:
+
 - Scope and requirements understood.
 - Scenario counts by priority and layer.
 - Requirement-to-test traceability and known gaps.
@@ -180,7 +185,6 @@ Run generator regression tests with:
 npx playwright test tests/aegis-planning.spec.ts
 ```
 
-
 ## Generate a release-readiness evidence report
 
 After execution statuses and evidence references have been updated from real runs, create a deterministic catalog audit:
@@ -190,7 +194,6 @@ npm run aegis:release-readiness
 ```
 
 The report is written to `artifacts/aegis/release-readiness.md`. The audit blocks when requirements are unapproved or unlinked, scenarios have invalid/missing traceability, scenarios fail, or P0/P1 and critical/high-risk scenarios are not recorded as passed. It also flags missing evidence references for P0/P1 scenarios. A clean result means only that this catalog audit found no configured blockers; it does not verify the referenced runs, query CI, prove coverage, or authorize a release. A human release owner must verify evidence, review residual risks, and record the decision. Never set a scenario to passed without actual execution evidence.
-
 
 ## Import actual Playwright execution results
 

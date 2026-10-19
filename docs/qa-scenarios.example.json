@@ -16,7 +16,9 @@
       "title": "Replace with a testable scenario title",
       "role": "Replace with an applicable user role",
       "preconditions": ["Replace with a verified precondition"],
-      "testData": ["Use synthetic data or a reference to approved test data; never include credentials"],
+      "testData": [
+        "Use synthetic data or a reference to approved test data; never include credentials"
+      ],
       "steps": ["Replace with a concrete action", "Replace with the next action"],
       "expectedResult": "Copy or faithfully derive from approved acceptance criteria; resolve ambiguity before automation.",
       "priority": "P1",
