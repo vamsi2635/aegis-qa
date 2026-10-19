@@ -118,6 +118,59 @@ test("release readiness audit blocks failed high-risk scenarios and accepts a re
 });
 
 
+test("release readiness blocks unknown execution statuses", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "aegis-invalid-status-"));
+  try {
+    await mkdir(path.join(root, "artifacts", "aegis"), { recursive: true });
+    await writeFile(
+      path.join(root, "artifacts", "aegis", "qa-scenarios.json"),
+      JSON.stringify({
+        schemaVersion: "1.0.0",
+        requirements: [
+          {
+            id: "REQ-CORE",
+            title: "Core behavior",
+            source: "requirements.md#core",
+            status: "approved",
+          },
+        ],
+        scenarios: [
+          {
+            id: "TC-CORE",
+            requirementIds: ["REQ-CORE"],
+            title: "Core journey",
+            role: "user",
+            preconditions: [],
+            testData: ["synthetic"],
+            steps: ["Complete journey"],
+            expectedResult: "Journey succeeds",
+            priority: "P3",
+            risk: "low",
+            layer: "api",
+            automationStatus: "automated",
+            executionStatus: "unknown-status",
+            evidence: ["artifacts/aegis/playwright-results.json"],
+          },
+        ],
+      }),
+    );
+    const result = spawnSync(
+      process.execPath,
+      [path.resolve("scripts/aegis-release-readiness.mjs"), root],
+      { encoding: "utf8" },
+    );
+    expect(result.status).toBe(1);
+    const report = await readFile(
+      path.join(root, "artifacts", "aegis", "release-readiness.md"),
+      "utf8",
+    );
+    expect(report).toContain("TC-CORE: invalid execution status (unknown-status).");
+    expect(report).toContain("NOT READY — BLOCKERS FOUND");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("Playwright result importer updates only matched catalog scenarios with real report evidence", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "aegis-import-results-"));
   try {
