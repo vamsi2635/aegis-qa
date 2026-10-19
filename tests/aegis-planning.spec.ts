@@ -76,3 +76,39 @@ test("test generator creates only approved, linked scaffolds and excludes unappr
     await rm(root, { recursive: true, force: true });
   }
 });
+
+
+test("release readiness audit blocks failed high-risk scenarios and accepts a reviewed passing catalog", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "aegis-readiness-"));
+  try {
+    await mkdir(path.join(root, "artifacts", "aegis"), { recursive: true });
+    const catalogPath = path.join(root, "artifacts", "aegis", "qa-scenarios.json");
+    const base = {
+      schemaVersion: "1.0.0",
+      requirements: [{ id: "REQ-CORE", title: "Core behavior", source: "requirements.md#core", status: "approved" }],
+      scenarios: [{
+        id: "TC-CORE", requirementIds: ["REQ-CORE"], title: "Core journey", role: "user",
+        preconditions: ["Synthetic account exists"], testData: ["synthetic account"],
+        steps: ["Complete core journey"], expectedResult: "Core journey succeeds",
+        priority: "P0", risk: "critical", layer: "api", automationStatus: "automated",
+        executionStatus: "failed", evidence: ["artifacts/playwright-report/index.html"]
+      }]
+    };
+    await writeFile(catalogPath, JSON.stringify(base));
+    const command = path.resolve("scripts/aegis-release-readiness.mjs");
+    const failed = spawnSync(process.execPath, [command, root], { encoding: "utf8" });
+    expect(failed.status).toBe(1);
+    let report = await readFile(path.join(root, "artifacts", "aegis", "release-readiness.md"), "utf8");
+    expect(report).toContain("NOT READY — BLOCKERS FOUND");
+    expect(report).toContain("TC-CORE: execution failed.");
+    base.scenarios[0].executionStatus = "passed";
+    await writeFile(catalogPath, JSON.stringify(base));
+    const passed = spawnSync(process.execPath, [command, root], { encoding: "utf8" });
+    expect(passed.status).toBe(0);
+    report = await readFile(path.join(root, "artifacts", "aegis", "release-readiness.md"), "utf8");
+    expect(report).toContain("NO CATALOG-BASED BLOCKERS DETECTED");
+    expect(report).toContain("human release-owner checklist");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
