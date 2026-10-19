@@ -20,7 +20,8 @@
     "aegis:validate-scenarios": "node scripts/aegis-validate-scenarios.mjs .",
     "aegis:plan-scenarios": "node scripts/aegis-plan-scenarios.mjs .",
     "aegis:generate-tests": "node scripts/aegis-generate-tests.mjs .",
-    "aegis:release-readiness": "node scripts/aegis-release-readiness.mjs ."
+    "aegis:release-readiness": "node scripts/aegis-release-readiness.mjs .",
+    "aegis:import-results": "node scripts/aegis-import-playwright-results.mjs ."
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
