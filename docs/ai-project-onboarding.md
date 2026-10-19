@@ -190,3 +190,18 @@ npm run aegis:release-readiness
 ```
 
 The report is written to `artifacts/aegis/release-readiness.md`. The audit blocks when requirements are unapproved or unlinked, scenarios have invalid/missing traceability, scenarios fail, or P0/P1 and critical/high-risk scenarios are not recorded as passed. It also flags missing evidence references for P0/P1 scenarios. A clean result means only that this catalog audit found no configured blockers; it does not verify the referenced runs, query CI, prove coverage, or authorize a release. A human release owner must verify evidence, review residual risks, and record the decision. Never set a scenario to passed without actual execution evidence.
+
+
+## Import actual Playwright execution results
+
+After implementing real tests and running them with Playwright's JSON reporter, import outcomes into the scenario catalog using test titles that include the matching scenario ID, for example `[TC-AUTH-001] valid user can sign in`.
+
+```powershell
+npx playwright test --reporter=json > artifacts/aegis/playwright-results.json
+npm run aegis:import-results
+npm run aegis:release-readiness
+```
+
+The importer matches `TC-...` IDs in Playwright suite/spec/test titles, updates only matched scenarios, and records the JSON report path as an evidence reference. Unmatched catalog scenarios retain their existing status. Unknown IDs cause the import to stop without writing the catalog. Failed tests remain failed; skipped tests become blocked; a test that passes only after a failed retry is inconclusive. Review the JSON report and imported catalog before release review.
+
+The importer does not prove that the report is current, that its source environment is approved, or that evidence files are trustworthy. Use a fresh report from the intended run and verify it manually. Do not use this importer to turn generated `test.fixme` scaffolds into passing results; those are intentionally disabled and are not functional product tests.
